@@ -3,12 +3,14 @@
 namespace liuyuanjun\yii2\extensions\db;
 
 
+use liuyuanjun\yii2\softdelete\SoftDeleteActiveQuery;
+
 /**
  * Class ActiveQuery.
  *
  * @author  Yuanjun.Liu <6879391@qq.com>
  */
-class ActiveQuery extends \liuyuanjun\yii2\softdelete\ActiveQuery
+class ActiveQuery extends SoftDeleteActiveQuery
 {
 
     /** andLikeWhere 匹配模式 **/

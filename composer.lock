@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d7287d3b4177763a3a87fb71bd4eb4e8",
+    "content-hash": "810f8474f45987718c384971004730ff",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -1116,12 +1116,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/liuyuanjun/yii2-softdelete.git",
-                "reference": "5ff97bfdaf12e6616a0b290bfa000ce027eb174e"
+                "reference": "31e010d7874084cd07fc2008aeeb43a06e1cf63b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liuyuanjun/yii2-softdelete/zipball/5ff97bfdaf12e6616a0b290bfa000ce027eb174e",
-                "reference": "5ff97bfdaf12e6616a0b290bfa000ce027eb174e",
+                "url": "https://api.github.com/repos/liuyuanjun/yii2-softdelete/zipball/31e010d7874084cd07fc2008aeeb43a06e1cf63b",
+                "reference": "31e010d7874084cd07fc2008aeeb43a06e1cf63b",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1138,7 +1138,10 @@
             "autoload": {
                 "psr-4": {
                     "liuyuanjun\\yii2\\softdelete\\": "src/"
-                }
+                },
+                "files": [
+                    "src/bootstrap.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1155,7 +1158,7 @@
                 "issues": "https://github.com/liuyuanjun/yii2-softdelete/issues",
                 "source": "https://github.com/liuyuanjun/yii2-softdelete/tree/v1.0.0"
             },
-            "time": "2021-09-01T09:26:56+00:00"
+            "time": "2021-09-02T13:09:35+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
