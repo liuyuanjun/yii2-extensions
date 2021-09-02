@@ -99,7 +99,6 @@ class Utils
 
     /**
      * 获取url中的域名部分
-     *
      * @param string $url
      * @return string
      * @throws \Exception
@@ -122,7 +121,6 @@ class Utils
 
     /**
      * 把数字转化成字母,计算Excel列用
-     *
      * @param int $num
      * @return bool|string
      * @author liuyuanjun
@@ -144,7 +142,6 @@ class Utils
 
     /**
      * 把字母转化成数字,计算Excel列用
-     *
      * @param string $letter
      * @return int
      * @author liuyuanjun
@@ -164,7 +161,6 @@ class Utils
 
     /**
      * 异常转数组
-     *
      * @param \Exception $exception
      * @return array
      */
@@ -198,7 +194,6 @@ class Utils
 
     /**
      * 数组转xml
-     *
      * @param array $array
      * @return string
      */
@@ -219,7 +214,6 @@ class Utils
 
     /**
      * Xml转数组
-     *
      * @param string $xml
      * @return array|string
      */
@@ -232,10 +226,9 @@ class Utils
 
     /**
      * 服务器IP
-     *
      * @return string
      */
-    public static function getServerIp()
+    public static function getServerIp(): string
     {
         if (!empty($_SERVER['SERVER_ADDR'])) {
             $ip = $_SERVER['SERVER_ADDR'];
@@ -255,7 +248,7 @@ class Utils
      * @date   2020/12/3 10:54
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function isMobile()
+    public static function isMobile(): bool
     {
         $agent = strtolower($_SERVER['HTTP_USER_AGENT'] ?? "");
         $mobileAgents = ['mobile', 'nokia', 'iphone', 'ipad', 'android', 'samsung', 'htc', 'blackberry'];
@@ -269,9 +262,9 @@ class Utils
      * @date   2020/12/3 10:54
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function isCli()
+    public static function isCli(): bool
     {
-        return preg_match("/cli/i", php_sapi_name()) ? true : false;
+        return (bool)preg_match("/cli/i", php_sapi_name());
     }
 
     public static function stdOut(string $string, $arg1 = BaseConsole::FG_GREY)
@@ -299,18 +292,6 @@ class Utils
     }
 
     /**
-     * 加前缀防止key冲突
-     * @param string $str
-     * @return string
-     * @date   2020/12/3 10:55
-     * @author Yuanjun.Liu <6879391@qq.com>
-     */
-    public static function redisKey(string $str)
-    {
-        return param('redisKeyPrefix', '') . $str;
-    }
-
-    /**
      * redis锁
      * @param string $lockKey
      * @param int $lockTime
@@ -320,7 +301,7 @@ class Utils
      */
     public static function redisLock(string $lockKey, int $lockTime): bool
     {
-        return (bool)redis()->set(static::redisKey('redis:lock:' . $lockKey), 1, 'EX', $lockTime, 'NX');
+        return (bool)redis()->set('_o2jd8H_:lyj:ext:redis:lock:' . $lockKey, 1, 'EX', $lockTime, 'NX');
     }
 
     /**
@@ -332,7 +313,7 @@ class Utils
      */
     public static function redisUnlock(string $lockKey)
     {
-        return redis()->del(static::redisKey('redis:lock:' . $lockKey));
+        return redis()->del('_o2jd8H_:lyj:ext:redis:lock:' . $lockKey);
     }
 
     /**
