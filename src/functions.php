@@ -85,15 +85,19 @@ if (!function_exists('http')) {
 
 if (!function_exists('api')) {
     /**
-     * @param string $baseUri
+     * @param string|array $baseUri  base uri or api hosts
      * @param string $api
      * @param bool $throwError
-     * @return HttpApi
+     * @return HttpApi|null
      * @date 2021/8/31 21:03
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    function api(string $baseUri, string $api = '', bool $throwError = false): HttpApi
+    function api($baseUri, string $api = '', bool $throwError = false): ?HttpApi
     {
+        if(is_array($baseUri)) {
+            HttpApi::register($baseUri);
+            return null;
+        }
         $instance = HttpApi::instance($baseUri)->api($api);
         $instance->throwError = $throwError;
         return $instance;
