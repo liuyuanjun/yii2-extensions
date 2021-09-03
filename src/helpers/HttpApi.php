@@ -22,18 +22,7 @@ class HttpApi
     protected $_params = [];
     protected $_options = ['timeout' => 20, 'headers' => []];
     protected $_log = [];
-
-    /**
-     * @var null|integer
-     * Error code holder: https://curl.haxx.se/libcurl/c/libcurl-errors.html
-     */
-    public $errorCode = null;
-
-    /**
-     * @var null|string
-     * Error text holder: http://php.net/manual/en/function.curl-strerror.php
-     */
-    public $errorText = null;
+    protected $_error = null;
 
     /**
      * 魔术方法
@@ -150,14 +139,14 @@ class HttpApi
     }
 
     /**
-     * 拼接API地址
-     * @return string
-     * @date   2021/3/23 19:29
+     * 获取错误
+     * @return \Exception|null
+     * @date 2021/9/3 18:02
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    protected function getApiUrl(): string
+    public function getError(): ?\Exception
     {
-        return rtrim($this->_baseUri, '/') . '/' . ltrim($this->_api, '/');
+        return $this->_error;
     }
 
     /**
@@ -187,6 +176,7 @@ class HttpApi
             $result = $stringBody && $jsonDecode ? Json::decode($stringBody) : $stringBody;
         } catch (\Exception $e) {
             $log = $log + ['errCode' => $e->getCode(), 'errMsg' => $e->getMessage(), 'errTrace' => $e->getTraceAsString()];
+            $this->_error = $e;
             $result = false;
         }
         $this->_log[] = $log;
