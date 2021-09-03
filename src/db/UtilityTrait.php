@@ -16,10 +16,12 @@ trait UtilityTrait
      * {@inheritdoc}
      * @author Yuanjun.Liu <6879391@qq.com>
      */
+    /*
     public static function find()
     {
         return new ActiveQuery(get_called_class());
     }
+    */
 
     /**
      * 错误字符串

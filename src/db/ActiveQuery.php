@@ -7,6 +7,7 @@ use liuyuanjun\yii2\softdelete\SoftDeleteActiveQuery;
 
 /**
  * Class ActiveQuery.
+ * 支持软删 (不影响非软删查询)
  *
  * @author  Yuanjun.Liu <6879391@qq.com>
  */
@@ -14,12 +15,10 @@ class ActiveQuery extends SoftDeleteActiveQuery
 {
 
     /** andLikeWhere 匹配模式 **/
-    const LIKE_MODE_WORD_AND_FIELD_OR  = 5; //任意字段匹配所有词
+    const LIKE_MODE_WORD_AND_FIELD_OR = 5; //任意字段匹配所有词
     const LIKE_MODE_WORD_AND_FIELD_AND = 9; //所有字段匹配所有词
-    const LIKE_MODE_WORD_OR_FIELD_OR   = 6; //任意字段匹配任意词
-    const LIKE_MODE_WORD_OR_FIELD_AND  = 10; //所有字段匹配任意词
-
-    private $_softDeleteWhereIsAdded = false;
+    const LIKE_MODE_WORD_OR_FIELD_OR = 6; //任意字段匹配任意词
+    const LIKE_MODE_WORD_OR_FIELD_AND = 10; //所有字段匹配任意词
 
     /**
      * 添加 like 关键词 and where 条件
@@ -27,10 +26,10 @@ class ActiveQuery extends SoftDeleteActiveQuery
      *                               '关键词1 关键词2'  字符串形式 按空格分割关键词
      *                               ['关键词1','关键词2']  数组形式
      *                               [['关键词1%',false],'关键词2']
-     * @param string|array $fields   检索字段
+     * @param string|array $fields 检索字段
      *                               'title'  单个字段
      *                               ['title1', 'title2']  多个字段
-     * @param int          $mode     模式
+     * @param int $mode 模式
      *                               Query::LIKE_MODE_WORD_AND_FIELD_OR  任意字段匹配所有词  默认
      *                               Query::LIKE_MODE_WORD_OR_FIELD_AND  所有字段匹配任意词
      *                               Query::LIKE_MODE_WORD_AND_FIELD_AND 所有字段匹配所有词
@@ -49,12 +48,15 @@ class ActiveQuery extends SoftDeleteActiveQuery
         }
         $keywords = array_unique(array_filter($keywords));
         if (empty($keywords)) return $this;
-        $fields     = (array)$fields;
+        foreach ($keywords as $k => $keyword) {
+            if (is_string($keyword)) $keywords[$k] = [$keyword, strpos($keyword, '%') === false];
+        }
+        $fields = (array)$fields;
         $conditions = [];
         foreach ($fields as $field) {
             $temp = [];
             foreach ($keywords as $keyword) {
-                $temp[] = is_array($keyword) ? ['like', $field, $keyword[0], $keyword[1]] : ['like', $field, $keyword];
+                $temp[] = ['like', $field, $keyword[0], $keyword[1]];
             }
             if (count($temp) == 1) {
                 $temp = $temp[0];
@@ -82,7 +84,7 @@ class ActiveQuery extends SoftDeleteActiveQuery
     public function page(int $page = 1, int $pageSize = 20): array
     {
         $pagination = $this->pagination($page, $pageSize);
-        $rows       = $this->limit($pagination['pageSize'])->offset($pagination['offset'])->all();
+        $rows = $this->limit($pagination['pageSize'])->offset($pagination['offset'])->all();
         return ['list' => $rows, 'page' => $pagination];
     }
 
@@ -96,8 +98,8 @@ class ActiveQuery extends SoftDeleteActiveQuery
      */
     public function pagination(int $page = 1, int $pageSize = 20): array
     {
-        $pageSize  = $pageSize < 1 ? 20 : $pageSize;
-        $totalNum  = intval($this->count('*'));
+        $pageSize = $pageSize < 1 ? 20 : $pageSize;
+        $totalNum = intval($this->count('*'));
         $totalPage = ceil($totalNum / $pageSize);
         if ($page > $totalPage) $page = $totalPage;
         if ($page < 1) $page = 1;

@@ -12,7 +12,15 @@ use liuyuanjun\yii2\softdelete\SoftDeleteTrait;
  */
 class ActiveRecord extends \yii\db\ActiveRecord
 {
+    /*
     use SoftDeleteTrait, UtilityTrait {
         UtilityTrait::find insteadof SoftDeleteTrait;
+    }
+    */
+    use SoftDeleteTrait, UtilityTrait;
+
+    public static function find()
+    {
+        return new ActiveQuery(get_called_class());
     }
 }
