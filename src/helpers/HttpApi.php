@@ -114,6 +114,35 @@ class HttpApi
     }
 
     /**
+     * 设置 header
+     * @param string $name
+     * @param $value
+     * @return $this
+     * @date 2021/9/3 19:16
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function setHeader(string $name, $value): HttpApi
+    {
+        $this->_options['headers'][$name] = $value;
+        return $this;
+    }
+
+    /**
+     * 批量设置 header
+     * @param array $headers
+     * @return $this
+     * @date 2021/9/3 19:17
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function setHeaders(array $headers): HttpApi
+    {
+        foreach ($headers as $name => $value) {
+            $this->_options['headers'][$name] = $value;
+        }
+        return $this;
+    }
+
+    /**
      * get 请求
      * @param array $params
      * @param bool $jsonDecode
