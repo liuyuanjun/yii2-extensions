@@ -39,6 +39,7 @@ class JsonFileTarget extends FileTarget
                 $array = ['message' => $array];
             }
         }
+        /*
         $traces = [];
         if (isset($message[4])) {
             foreach ($message[4] as $trace) {
@@ -46,6 +47,7 @@ class JsonFileTarget extends FileTarget
             }
         }
         $array['_traces'] = $traces;
+        */
         if (isset($message[5])) $array['_memoryUsage'] = $message[5];
         $array['_category'] = $category;
         $array['_level'] = $level;

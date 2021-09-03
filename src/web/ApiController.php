@@ -46,7 +46,7 @@ abstract class ApiController extends \yii\web\Controller
             'postParams' => $req->post(),
             'response' => mb_strlen($resData) > 500 ? mb_substr($resData, 0, 500) . '...' : $resData,
         ];
-        Log::info($log, 'api');
+        Log::info($log, 'api', '_d_ymd');
     }
 
     /**

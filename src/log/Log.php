@@ -68,6 +68,7 @@ class Log
     public static function json(array $array, $level, string $category = 'common', string $fileSuffix = 'c')
     {
         $fullCategory = '_custom_' . $category;
+        if ($fileSuffix && strpos($fileSuffix, '_d_') === 0) $fileSuffix = date(substr($fileSuffix, 3));
         $log = Yii::$app->getLog();
         if (!isset($log->targets[$fullCategory]))
             $log->targets[$fullCategory] = Yii::createObject([
