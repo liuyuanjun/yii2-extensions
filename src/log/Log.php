@@ -21,36 +21,39 @@ class Log
      * Logs an error message.
      * @param array $array
      * @param string $category
+     * @param string $fileSuffix
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function error(array $array, string $category = 'common')
+    public static function error(array $array, string $category = 'common', string $fileSuffix = 'c')
     {
-        static::json($array, Logger::LEVEL_ERROR, $category);
+        static::json($array, Logger::LEVEL_ERROR, $category, $fileSuffix);
     }
 
     /**
      * Logs a warning message.
      * @param array $array
      * @param string $category
+     * @param string $fileSuffix
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function warning(array $array, string $category = 'common')
+    public static function warning(array $array, string $category = 'common', string $fileSuffix = 'c')
     {
-        static::json($array, Logger::LEVEL_WARNING, $category);
+        static::json($array, Logger::LEVEL_WARNING, $category, $fileSuffix);
     }
 
     /**
      * Logs an informative message.
      * @param array $array
      * @param string $category
+     * @param string $fileSuffix
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function info(array $array, string $category = 'common')
+    public static function info(array $array, string $category = 'common', string $fileSuffix = 'c')
     {
-        static::json($array, Logger::LEVEL_INFO, $category);
+        static::json($array, Logger::LEVEL_INFO, $category, $fileSuffix);
     }
 
     /**
@@ -58,10 +61,11 @@ class Log
      * @param array $array
      * @param $level
      * @param string $category
+     * @param string $fileSuffix
      * @date 2021/9/1 11:37
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function json(array $array, $level, string $category = 'common')
+    public static function json(array $array, $level, string $category = 'common', string $fileSuffix = 'c')
     {
         $fullCategory = '_custom_' . $category;
         $log = Yii::$app->getLog();
@@ -69,7 +73,7 @@ class Log
             $log->targets[$fullCategory] = Yii::createObject([
                 'class' => JsonFileTarget::class,
                 'levels' => ['error', 'warning', 'info'],
-                'logFile' => (defined('APP_LOG_DIR') ? APP_LOG_DIR : '@runtime/logs') . '/' . $category . '.log',
+                'logFile' => (defined('APP_LOG_DIR') ? APP_LOG_DIR : '@runtime/logs') . '/' . $category . ($fileSuffix ? '.' . $fileSuffix : '') . '.log',
                 'logVars' => [],
                 'categories' => [$fullCategory],
             ]);
