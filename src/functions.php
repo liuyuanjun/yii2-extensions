@@ -87,13 +87,16 @@ if (!function_exists('api')) {
     /**
      * @param string $baseUri
      * @param string $api
+     * @param bool $throwError
      * @return HttpApi
      * @date 2021/8/31 21:03
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    function api(string $baseUri, string $api = ''): HttpApi
+    function api(string $baseUri, string $api = '', bool $throwError = false): HttpApi
     {
-        return HttpApi::instance($baseUri)->api($api);
+        $instance = HttpApi::instance($baseUri)->api($api);
+        $instance->throwError = $throwError;
+        return $instance;
     }
 }
 

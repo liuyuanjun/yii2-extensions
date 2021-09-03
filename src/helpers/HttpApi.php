@@ -17,12 +17,12 @@ use yii\log\Logger;
 class HttpApi
 {
     private static $_apiHosts = [];
-    protected $_baseUri = '';
     protected $_api;
     protected $_params = [];
     protected $_options = ['timeout' => 20, 'headers' => []];
     protected $_log = [];
     protected $_error = null;
+    public $throwError = false;
 
     /**
      * 魔术方法
@@ -49,11 +49,12 @@ class HttpApi
      * @date 2021/8/31 20:53
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function instance(string $baseUri, array $options = []): HttpApi
+    public static function instance(string $baseUri, array $options = [], bool $throwError = false): HttpApi
     {
         $baseUri = static::$_apiHosts[$baseUri] ?? $baseUri;
         $instance = new static($baseUri);
         if (!empty($options)) $instance->_options = array_merge($instance->_options, $options);
+        $instance->throwError = $throwError;
         return $instance;
     }
 
@@ -156,6 +157,7 @@ class HttpApi
      * @param bool $jsonDecode
      * @return false|mixed|null
      * @date   2021/3/23 18:22
+     * @throws \Exception
      * @author Yuanjun.Liu <6879391@qq.com>
      */
     protected function request(string $method, array $params = [], bool $jsonDecode = true)
@@ -181,6 +183,7 @@ class HttpApi
         }
         $this->_log[] = $log;
         Log::json($log, $result === false ? Logger::LEVEL_ERROR : Logger::LEVEL_INFO, 'http_api_request');
+        if ($result === false && $this->throwError && !empty($e)) throw $e;
         return $result;
     }
 
