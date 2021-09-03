@@ -63,15 +63,16 @@ class Log
      */
     public static function json(array $array, $level, string $category = 'common')
     {
+        $fullCategory = '_custom_' . $category;
         $log = Yii::$app->getLog();
-        if (!isset($log->targets[$category]))
-            $log->targets[$category] = Yii::createObject([
+        if (!isset($log->targets[$fullCategory]))
+            $log->targets[$fullCategory] = Yii::createObject([
                 'class' => JsonFileTarget::class,
                 'levels' => ['error', 'warning', 'info'],
                 'logFile' => (defined('APP_LOG_DIR') ? APP_LOG_DIR : '@runtime/logs') . '/' . $category . '.log',
                 'logVars' => [],
-                'categories' => [$category],
+                'categories' => [$fullCategory],
             ]);
-        Yii::getLogger()->log($array, $level, $category);
+        Yii::getLogger()->log($array, $level, $fullCategory);
     }
 }
