@@ -27,7 +27,7 @@ class Fmt
      */
     public static function duration(int $seconds, int $format = self::F_DAY | self::F_HOUR | self::F_MINUTE | self::F_SECOND): string
     {
-        $units = [self::F_DAY => [86400, '天'], self::F_HOUR => [3600, '小时'], self::F_MINUTE => [60, '分'], self::F_SECOND => [1, '秒']];
+        $units = [self::F_DAY => [86400, '天'], self::F_HOUR => [3600, '小时'], self::F_MINUTE => [60, '分钟'], self::F_SECOND => [1, '秒']];
         $str = '';
         foreach ($units as $k => $v) {
             if (!($format & $k)) continue;
