@@ -16,7 +16,8 @@
         "aliyuncs/oss-sdk-php": "^2.4",
         "phpoffice/phpspreadsheet": "^1.18",
         "alibabacloud/sdk": "^1.8",
-        "fakerphp/faker": "^1.15"
+        "fakerphp/faker": "^1.15",
+        "mobiledetect/mobiledetectlib": "^2.8"
     },
     "license": "MIT",
     "authors": [

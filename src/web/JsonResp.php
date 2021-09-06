@@ -111,17 +111,6 @@ class JsonResp
     }
 
     /**
-     * 抛异常，抛异常时data会忽略
-     * @param string $exceptionClass
-     * @author Yuanjun.Liu <6879391@qq.com>
-     */
-    public function throw(string $exceptionClass = UserException::class)
-    {
-        $this->prepare();
-        throw new $exceptionClass($this->_data['message'], $this->_data['code']);
-    }
-
-    /**
      * 返回
      * @param bool $end
      * @return mixed|\yii\console\Response|Response
@@ -136,12 +125,7 @@ class JsonResp
             $response->format = Response::FORMAT_JSON;
             $response->data = $this->_data;
         } else {
-            $string = "[{$this->_code}] " . $this->_data['message'] . "\n";
-            if ($this->_data['data']) $string .= 'DATA: ' . Json::encode($this->_data['data']) . "\n";
-            if (Console::streamSupportsAnsiColors($this->_code == static::CODE_SUCCESS ? \STDOUT : \STDERR)) {
-                $string = Console::ansiFormat($string, [$this->_code == static::CODE_SUCCESS ? BaseConsole::FG_GREEN : BaseConsole::FG_RED]);
-            }
-            fwrite($this->_code == static::CODE_SUCCESS ? \STDOUT : \STDERR, $string);
+            $this->print();
         }
         if ($end) {
             Yii::$app->end();
@@ -159,6 +143,32 @@ class JsonResp
     public function response(bool $end)
     {
         return $this->resp($end);
+    }
+
+    /**
+     * 抛异常，抛异常时data会忽略
+     * @param string $exceptionClass
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function throw(string $exceptionClass = UserException::class)
+    {
+        $this->prepare();
+        throw new $exceptionClass($this->_data['message'], $this->_data['code']);
+    }
+
+    /**
+     * Prints a string to STDERR or STDOUT.
+     * @date 2021/9/6 15:35
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function print()
+    {
+        $string = "[{$this->_code}] " . $this->_data['message'] . "\n";
+        if ($this->_data['data']) $string .= 'DATA: ' . Json::encode($this->_data['data']) . "\n";
+        if (Console::streamSupportsAnsiColors($this->_code == static::CODE_SUCCESS ? \STDOUT : \STDERR)) {
+            $string = Console::ansiFormat($string, [$this->_code == static::CODE_SUCCESS ? BaseConsole::FG_GREEN : BaseConsole::FG_RED]);
+        }
+        fwrite($this->_code == static::CODE_SUCCESS ? \STDOUT : \STDERR, $string);
     }
 
     /**

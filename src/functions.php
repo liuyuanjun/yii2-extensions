@@ -1,5 +1,6 @@
 <?php
 
+use Detection\MobileDetect;
 use GuzzleHttp\Client;
 use liuyuanjun\yii2\extensions\helpers\HttpApi;
 use liuyuanjun\yii2\extensions\web\JsonResp;
@@ -132,5 +133,15 @@ if (!function_exists('resp')) {
         if (is_string($code)) $instance->msg($code);
         elseif (is_array($code)) $instance->data($code);
         return $instance;
+    }
+}
+
+if (!function_exists('device')) {
+    /**
+     * @return MobileDetect
+     */
+    function device(): MobileDetect
+    {
+        return new MobileDetect();
     }
 }
