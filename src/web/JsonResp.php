@@ -22,6 +22,8 @@ class JsonResp
     private static $_errorCodes = [0 => 'FAIL', 200 => 'OK'];
     public static $undefinedErrorMessage = '未定义错误。';
 
+    private static $_defaultFilter;
+
     protected $_code = null;
     protected $_args = [];
     protected $_data = [];
@@ -109,6 +111,18 @@ class JsonResp
     public static function getErrCodes(): array
     {
         return self::$_errorCodes;
+    }
+
+
+    /**
+     * 设置默认过滤器，null则取消过滤器设置
+     * @param callable|null $filter
+     * @date 2021/9/7 10:02
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public static function setDefaultFilter(callable $filter = null)
+    {
+        static::$_defaultFilter = $filter;
     }
 
     /**
@@ -220,12 +234,14 @@ class JsonResp
     /**
      * 附带数据
      * @param array|object|string $data
+     * @param callable|null $filter
      * @return $this
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public function data($data): JsonResp
+    public function data($data, callable $filter = null): JsonResp
     {
         $this->_data['data'] = $data;
+        if ($filter !== null) $this->_filter = $filter;
         return $this;
     }
 
@@ -268,8 +284,9 @@ class JsonResp
         $this->_data['serverTime'] = date('Y-m-d H:i:s', (int)YII_BEGIN_TIME);
         empty($this->_args) || $this->_data['message'] = call_user_func_array('sprintf', array_merge([$this->_data['message']], $this->_args));
 //        if (isset($this->_data['data']) && empty($this->_data['data'])) $this->_data['data'] = new \ArrayObject;
-        if (!empty($this->_data['data']) && $this->_filter && is_callable($this->_filter)) {
-            $this->_data['data'] = call_user_func($this->_filter, $this->_data['data']);
+        $filter = $this->_filter ?? static::$_defaultFilter;
+        if (!empty($this->_data['data']) && $filter && is_callable($filter)) {
+            $this->_data['data'] = call_user_func($filter, $this->_data['data']);
         } elseif (isset($this->_data['data']) && $this->_data['data'] === null) {
             unset($this->_data['data']);
         }
