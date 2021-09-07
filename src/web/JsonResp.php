@@ -25,6 +25,7 @@ class JsonResp
     protected $_code = null;
     protected $_args = [];
     protected $_data = [];
+    protected $_filter;
 
     public function __construct($code)
     {
@@ -241,6 +242,19 @@ class JsonResp
     }
 
     /**
+     * 添加过滤器
+     * @param callable $filter filter需返回加工过的data数据
+     * @return $this
+     * @date 2021/9/7 09:38
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function filter(callable $filter): JsonResp
+    {
+        $this->_filter = $filter;
+        return $this;
+    }
+
+    /**
      * prepare data
      * @date 2021/8/31 15:07
      * @author Yuanjun.Liu <6879391@qq.com>
@@ -254,23 +268,11 @@ class JsonResp
         $this->_data['serverTime'] = date('Y-m-d H:i:s', (int)YII_BEGIN_TIME);
         empty($this->_args) || $this->_data['message'] = call_user_func_array('sprintf', array_merge([$this->_data['message']], $this->_args));
 //        if (isset($this->_data['data']) && empty($this->_data['data'])) $this->_data['data'] = new \ArrayObject;
-        if (!empty($this->_data['data'])) {
-            if (is_array($this->_data['data'])) {
-                self::removeNull($this->_data['data']);
-            }
+        if (!empty($this->_data['data']) && $this->_filter && is_callable($this->_filter)) {
+            $this->_data['data'] = call_user_func($this->_filter, $this->_data['data']);
         } elseif (isset($this->_data['data']) && $this->_data['data'] === null) {
             unset($this->_data['data']);
         }
     }
 
-    protected static function removeNull(array &$array)
-    {
-        foreach ($array as &$v) {
-            if (is_null($v)) {
-                $v = '';
-            } elseif (is_array($v)) {
-                self::removeNull($v);
-            }
-        }
-    }
 }

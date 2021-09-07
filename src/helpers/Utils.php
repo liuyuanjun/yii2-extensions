@@ -124,20 +124,6 @@ class Utils
     }
 
     /**
-     * 判断移动设备
-     * @return bool
-     * @date   2020/12/3 10:54
-     * @author Yuanjun.Liu <6879391@qq.com>
-     */
-    public static function isMobile(): bool
-    {
-        $agent = strtolower($_SERVER['HTTP_USER_AGENT'] ?? "");
-        $mobileAgents = ['mobile', 'nokia', 'iphone', 'ipad', 'android', 'samsung', 'htc', 'blackberry'];
-
-        return str_replace($mobileAgents, '', $agent) != $agent;
-    }
-
-    /**
      * 判断CLI
      * @return bool
      * @date   2020/12/3 10:54
