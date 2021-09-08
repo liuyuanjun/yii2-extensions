@@ -2,7 +2,9 @@
 
 namespace liuyuanjun\yii2\extensions\web;
 
+use ArrayObject;
 use liuyuanjun\yii2\extensions\helpers\Utils;
+use stdClass;
 use Yii;
 use yii\base\UserException;
 use yii\helpers\BaseConsole;
@@ -38,14 +40,14 @@ class JsonResp
 
     /**
      * @param string|array $message
-     * @param array|null $data
+     * @param array|stdClass|ArrayObject $data
      * @return mixed|\yii\console\Response|Response
      * @date 2021/8/31 15:42
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function ok($message = '', array $data = null)
+    public static function ok($message = '', $data = null)
     {
-        if (is_array($message)) {
+        if (static::isData($message)) {
             $data = $message;
             $message = '';
         }
@@ -55,22 +57,22 @@ class JsonResp
     /**
      * @param int|string|array $code
      * @param string|array $message
-     * @param array|null $data
+     * @param array|stdClass|ArrayObject $data
      * @return mixed|\yii\console\Response|Response
      * @date 2021/8/31 15:33
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function fail($code = 0, $message = '', array $data = null)
+    public static function fail($code = 0, $message = '', $data = null)
     {
         $realMsg = $message;
-        if (is_array($code)) {
+        if (static::isData($code)) {
             $data = $code;
             $code = 0;
         } elseif (is_string($code)) {
             $realMsg = $code;
             $code = 0;
         }
-        if (is_array($message)) {
+        if (static::isData($message)) {
             $data = $message;
             $realMsg = '';
         }
@@ -80,11 +82,11 @@ class JsonResp
     /**
      * @param int $code
      * @param string $message
-     * @param array|null $data
+     * @param array|stdClass|ArrayObject $data
      * @return static
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function instance(int $code, string $message = '', array $data = null): JsonResp
+    public static function instance(int $code, string $message = '', $data = null): JsonResp
     {
         $instance = new static($code);
         $message && $instance->msg($message);
@@ -233,7 +235,7 @@ class JsonResp
 
     /**
      * 附带数据
-     * @param array|object|string $data
+     * @param mixed $data
      * @param callable|null $filter
      * @return $this
      * @author Yuanjun.Liu <6879391@qq.com>
@@ -253,7 +255,7 @@ class JsonResp
      */
     public function addData(array $data): JsonResp
     {
-        $this->_data['data'] = array_merge($this->_data['data'] ?? [], $data);
+        $this->_data['data'] = array_merge((array)$this->_data['data'] ?? [], $data);
         return $this;
     }
 
@@ -290,6 +292,17 @@ class JsonResp
         } elseif (isset($this->_data['data']) && $this->_data['data'] === null) {
             unset($this->_data['data']);
         }
+    }
+
+    /**
+     * @param mixed $data
+     * @return bool
+     * @date 2021/9/8 20:21
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public static function isData($data): bool
+    {
+        return is_array($data) || $data instanceof stdClass || $data instanceof ArrayObject;
     }
 
 }
