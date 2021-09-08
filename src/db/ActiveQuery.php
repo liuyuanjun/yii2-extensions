@@ -40,6 +40,34 @@ class ActiveQuery extends SoftDeleteActiveQuery
      */
     public function andLikeWhere($fields, $keywords, int $mode = self::LIKE_MODE_WORD_AND_FIELD_OR): ActiveQuery
     {
+        return $this->andWhere($this->buildLikeCondition($fields, $keywords, $mode));
+    }
+
+    /**
+     * 添加 like 关键词 or where 条件
+     * @param $fields
+     * @param $keywords
+     * @param int $mode
+     * @return ActiveQuery
+     * @date 2021/9/8 16:13
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function orLikeWhere($fields, $keywords, int $mode = self::LIKE_MODE_WORD_AND_FIELD_OR): ActiveQuery
+    {
+        return $this->orWhere($this->buildLikeCondition($fields, $keywords, $mode));
+    }
+
+    /**
+     * build like condition
+     * @param $fields
+     * @param $keywords
+     * @param int $mode
+     * @return $this
+     * @date 2021/9/8 16:14
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    protected function buildLikeCondition($fields, $keywords, int $mode = self::LIKE_MODE_WORD_AND_FIELD_OR): ActiveQuery
+    {
         //1匹配所有词  2匹配任意词  4匹配所有字段  8匹配任意字段
         if (is_string($keywords)) {
             $keywords = explode(' ', $keywords);
@@ -70,7 +98,7 @@ class ActiveQuery extends SoftDeleteActiveQuery
         } else {
             array_unshift($conditions, $mode & 4 ? 'OR' : 'AND');
         }
-        return $this->andWhere($conditions);
+        return $conditions;
     }
 
     /**
