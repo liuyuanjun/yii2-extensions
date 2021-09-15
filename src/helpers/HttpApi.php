@@ -17,6 +17,7 @@ use yii\log\Logger;
 class HttpApi
 {
     private static $_apiHosts = [];
+    private static $_logName = 'http_api_request';
     protected $_api;
     protected $_params = [];
     protected $_options = ['timeout' => 20, 'headers' => []];
@@ -67,6 +68,18 @@ class HttpApi
     {
         self::$_apiHosts += $hosts;
     }
+
+    /**
+     * 设置日志
+     * @param string $logName
+     * @date 2021/9/15 11:58
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public static function setLog(string $logName)
+    {
+        self::$_logName = $logName;
+    }
+
 
     protected function __construct($baseUri = '')
     {
@@ -211,7 +224,8 @@ class HttpApi
             $result = false;
         }
         $this->_log[] = $log;
-        Log::json($log, $result === false ? Logger::LEVEL_ERROR : Logger::LEVEL_INFO, 'http_api_request');
+        if (static::$_logName)
+            Log::json($log, $result === false ? Logger::LEVEL_ERROR : Logger::LEVEL_INFO, static::$_logName, '');
         if ($result === false && $this->throwError && !empty($e)) throw $e;
         return $result;
     }

@@ -21,11 +21,11 @@ class Log
      * Logs an error message.
      * @param array $array
      * @param string $category
-     * @param string $fileSuffix
+     * @param string|callable $fileSuffix
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function error(array $array, string $category = 'common', string $fileSuffix = 'c')
+    public static function error(array $array, string $category = 'common', $fileSuffix = 'c')
     {
         static::json($array, Logger::LEVEL_ERROR, $category, $fileSuffix);
     }
@@ -34,11 +34,11 @@ class Log
      * Logs a warning message.
      * @param array $array
      * @param string $category
-     * @param string $fileSuffix
+     * @param string|callable $fileSuffix
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function warning(array $array, string $category = 'common', string $fileSuffix = 'c')
+    public static function warning(array $array, string $category = 'common', $fileSuffix = 'c')
     {
         static::json($array, Logger::LEVEL_WARNING, $category, $fileSuffix);
     }
@@ -47,11 +47,11 @@ class Log
      * Logs an informative message.
      * @param array $array
      * @param string $category
-     * @param string $fileSuffix
+     * @param string|callable $fileSuffix
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function info(array $array, string $category = 'common', string $fileSuffix = 'c')
+    public static function info(array $array, string $category = 'common', $fileSuffix = 'c')
     {
         static::json($array, Logger::LEVEL_INFO, $category, $fileSuffix);
     }
@@ -61,16 +61,22 @@ class Log
      * @param array $array
      * @param $level
      * @param string $category
-     * @param string $fileSuffix
+     * @param string|callable $fileSuffix
      * @date 2021/9/1 11:37
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function json(array $array, $level, string $category = 'common', string $fileSuffix = 'c')
+    public static function json(array $array, $level, string $category = 'common', $fileSuffix = 'c')
     {
         $fullCategory = '_custom_' . $category;
-        if ($fileSuffix && strpos($fileSuffix, '_d_') === 0) $fileSuffix = date(substr($fileSuffix, 3));
         $log = Yii::$app->getLog();
-        if (!isset($log->targets[$fullCategory]))
+        if (!isset($log->targets[$fullCategory])) {
+            if ($fileSuffix) {
+                if (is_callable($fileSuffix)) {
+                    $fileSuffix = call_user_func($fileSuffix, $array, $level, $category);
+                } elseif (is_string($fileSuffix) && strpos($fileSuffix, '_d_') === 0) {
+                    $fileSuffix = date(substr($fileSuffix, 3));
+                }
+            }
             $log->targets[$fullCategory] = Yii::createObject([
                 'class' => JsonFileTarget::class,
                 'levels' => ['error', 'warning', 'info'],
@@ -78,6 +84,7 @@ class Log
                 'logVars' => [],
                 'categories' => [$fullCategory],
             ]);
+        }
         Yii::getLogger()->log($array, $level, $fullCategory);
     }
 }
