@@ -6,11 +6,11 @@ use liuyuanjun\yii2\helpers\Utils;
 use liuyuanjun\yii2\log\Log;
 use Yii;
 use yii\base\Behavior;
+use yii\base\Controller;
 use yii\helpers\Json;
-use yii\web\Response;
 
 /**
- * LoggerBehavior ¼ÇÂ¼ApiÇëÇóÈÕÖ¾
+ * LoggerBehavior è®°å½•Apiè¯·æ±‚æ—¥å¿—
  *
  * ```php
  * use liuyuanjun\yii2\behaviors\LoggerBehavior;
@@ -28,22 +28,22 @@ use yii\web\Response;
  */
 class LoggerBehavior extends Behavior
 {
-    public $enableApiLog = true;
+    public $apiLog = 'api';
 
     public function events(): array
     {
-        return [Response::EVENT_AFTER_SEND => 'writeLog'];
+        return [Controller::EVENT_AFTER_ACTION => 'writeLog'];
     }
 
     /**
-     * ¼ÇÂ¼ Api Log
+     * è®°å½• Api Log
      * @date 2021/8/30 20:47
      * @author Yuanjun.Liu <6879391@qq.com>
      */
     public function writeLog()
     {
-        if (!$this->enableApiLog) return;
-        $req = \Yii::$app->request;
+        if (!$this->apiLog) return;
+        $req = Yii::$app->request;
         $res = Yii::$app->response;
         $resData = is_string($res->data) ? str_replace(["\r", "\n"], ' ', $res->data) : Json::encode($res->data);
         $log = [
@@ -54,6 +54,6 @@ class LoggerBehavior extends Behavior
             'postParams' => $req->post(),
             'response' => mb_strlen($resData) > 500 ? mb_substr($resData, 0, 500) . '...' : $resData,
         ];
-        Log::info($log, 'api', '_d_ymd');
+        Log::info($log, $this->apiLog, '_d_ymd');
     }
 }
