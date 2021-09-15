@@ -1,5 +1,5 @@
 # Yii2 扩展
-> Yuanjun.Liu 自用
+> Yuanjun.Liu 自用，并没有很好的封装
 
 ## 软删
 #### Usage:
@@ -31,7 +31,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
 ```php
 <?php
 use liuyuanjun\yii2\softdelete\SoftDeleteTrait;
-use liuyuanjun\yii2\extensions\db\UtilityTrait;
+use liuyuanjun\yii2\db\UtilityTrait;
 
 class ActiveRecord extends \yii\db\ActiveRecord
 {

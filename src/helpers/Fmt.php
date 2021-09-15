@@ -1,11 +1,11 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\helpers;
+namespace liuyuanjun\yii2\helpers;
 
 
 /**
  * Class Format
- * @package liuyuanjun\yii2\extensions\helpers
+ * @package liuyuanjun\yii2\helpers
  *
  * @author Yuanjun.Liu <6879391@qq.com>
  */
@@ -52,13 +52,7 @@ class Fmt
     {
         $prec = 3;
         $size = round(abs($size));
-        $units = [
-            0 => " B",
-            1 => " KB",
-            2 => " MB",
-            3 => " GB",
-            4 => " TB"
-        ];
+        $units = [0 => " B", 1 => " KB", 2 => " MB", 3 => " GB", 4 => " TB"];
         if ($size == 0) {
             return str_repeat(" ", $prec) . "0$units[0]";
         }

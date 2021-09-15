@@ -1,8 +1,8 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\log;
+namespace liuyuanjun\yii2\log;
 
-
+use Closure;
 use Yii;
 use yii\log\Logger;
 
@@ -71,7 +71,7 @@ class Log
         $log = Yii::$app->getLog();
         if (!isset($log->targets[$fullCategory])) {
             if ($fileSuffix) {
-                if (is_callable($fileSuffix)) {
+                if ($fileSuffix instanceof Closure || (is_array($fileSuffix) && is_callable($fileSuffix))) {
                     $fileSuffix = call_user_func($fileSuffix, $array, $level, $category);
                 } elseif (is_string($fileSuffix) && strpos($fileSuffix, '_d_') === 0) {
                     $fileSuffix = date(substr($fileSuffix, 3));

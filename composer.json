@@ -29,7 +29,7 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-            "liuyuanjun\\yii2\\extensions\\": "src/"
+            "liuyuanjun\\yii2\\": "src/"
         },
         "files": [
             "src/functions.php"

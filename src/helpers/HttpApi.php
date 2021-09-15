@@ -1,9 +1,9 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\helpers;
+namespace liuyuanjun\yii2\helpers;
 
 use GuzzleHttp\Client;
-use liuyuanjun\yii2\extensions\log\Log;
+use liuyuanjun\yii2\log\Log;
 use Psr\Http\Message\ResponseInterface;
 use Yii;
 use yii\base\Exception;

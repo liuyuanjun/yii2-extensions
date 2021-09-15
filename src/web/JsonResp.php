@@ -1,9 +1,9 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\web;
+namespace liuyuanjun\yii2\web;
 
 use ArrayObject;
-use liuyuanjun\yii2\extensions\helpers\Utils;
+use liuyuanjun\yii2\helpers\Utils;
 use stdClass;
 use Yii;
 use yii\base\UserException;
@@ -29,7 +29,7 @@ class JsonResp
     protected $_code = null;
     protected $_args = [];
     protected $_data = [];
-    protected $_filter;
+    protected $_options = ['filters' => [], 'headers' => []];
 
     public function __construct($code)
     {
@@ -140,6 +140,10 @@ class JsonResp
         $response = Yii::$app->getResponse();
         if ($response instanceof Response) {
             $response->format = Response::FORMAT_JSON;
+            $this->_options['headers']['x-request-id'] = Utils::requestId();
+            $headers = $response->getHeaders();
+            foreach ($this->_options['headers'] as $k => $v)
+                $headers->add($k, $v);
             $response->data = $this->_data;
         } else {
             $this->print();
@@ -234,16 +238,34 @@ class JsonResp
     }
 
     /**
+     * 返回头
+     * @param string|array $name
+     * @param string $value
+     * @return $this
+     * @date 2021/9/15 15:36
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function header($name, string $value = ''): JsonResp
+    {
+        if (is_array($name)) {
+            $this->_options['headers'] = array_merge($this->_options['headers'], $name);
+        } else {
+            $this->_options['headers'][$name] = $value;
+        }
+        return $this;
+    }
+
+    /**
      * 附带数据
      * @param mixed $data
-     * @param callable|null $filter
+     * @param callable|Closure|array|null $filter
      * @return $this
      * @author Yuanjun.Liu <6879391@qq.com>
      */
     public function data($data, callable $filter = null): JsonResp
     {
         $this->_data['data'] = $data;
-        if ($filter !== null) $this->_filter = $filter;
+        if ($filter) $this->filter($filter);
         return $this;
     }
 
@@ -261,14 +283,18 @@ class JsonResp
 
     /**
      * 添加过滤器
-     * @param callable $filter filter需返回加工过的data数据
+     * @param callable|Closure|array $filter filter需返回加工过的data数据
      * @return $this
      * @date 2021/9/7 09:38
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public function filter(callable $filter): JsonResp
+    public function filter($filter, $append = true): JsonResp
     {
-        $this->_filter = $filter;
+        if ($append) {
+            $this->_options['filters'][] = $filter;
+        } else {
+            $this->_options['filters'] = $filter;
+        }
         return $this;
     }
 
@@ -286,12 +312,13 @@ class JsonResp
         $this->_data['serverTime'] = date('Y-m-d H:i:s', (int)YII_BEGIN_TIME);
         empty($this->_args) || $this->_data['message'] = call_user_func_array('sprintf', array_merge([$this->_data['message']], $this->_args));
 //        if (isset($this->_data['data']) && empty($this->_data['data'])) $this->_data['data'] = new \ArrayObject;
-        $filter = $this->_filter ?? static::$_defaultFilter;
-        if (!empty($this->_data['data']) && $filter && is_callable($filter)) {
-            $this->_data['data'] = call_user_func($filter, $this->_data['data']);
-        } elseif (isset($this->_data['data']) && $this->_data['data'] === null) {
-            unset($this->_data['data']);
+        if (static::$_defaultFilter) array_unshift($this->_options['filters'], static::$_defaultFilter);
+        if (!empty($this->_options['filters']) && !empty($this->_data['data'])) {
+            foreach ($this->_options['filters'] as $filter) {
+                $this->_data['data'] = call_user_func($filter, $this->_data['data']);
+            }
         }
+        if (isset($this->_data['data']) && $this->_data['data'] === null) unset($this->_data['data']);
     }
 
     /**

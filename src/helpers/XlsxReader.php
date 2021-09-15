@@ -1,6 +1,6 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\helpers;
+namespace liuyuanjun\yii2\helpers;
 
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;

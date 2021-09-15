@@ -1,6 +1,6 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\aliyun\oss;
+namespace liuyuanjun\yii2\aliyun\oss;
 
 use OSS\OssClient;
 use yii\base\Component;

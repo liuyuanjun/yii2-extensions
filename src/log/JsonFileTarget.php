@@ -1,8 +1,8 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\log;
+namespace liuyuanjun\yii2\log;
 
-use liuyuanjun\yii2\extensions\helpers\Utils;
+use liuyuanjun\yii2\helpers\Utils;
 use Yii;
 use yii\helpers\Json;
 use yii\log\FileTarget;

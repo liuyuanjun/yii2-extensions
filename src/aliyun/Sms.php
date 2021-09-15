@@ -1,6 +1,6 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\aliyun;
+namespace liuyuanjun\yii2\aliyun;
 
 use yii\base\Component;
 use yii\base\Exception;

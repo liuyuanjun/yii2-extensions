@@ -1,9 +1,9 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\helpers;
+namespace liuyuanjun\yii2\helpers;
 
 use GuzzleHttp\Client;
-use liuyuanjun\yii2\extensions\log\Log;
+use liuyuanjun\yii2\log\Log;
 use Yii;
 use yii\base\Exception;
 use yii\helpers\Json;
@@ -11,7 +11,7 @@ use yii\log\Logger;
 
 /**
  * Class DdMsg 钉钉消息通知
- * @package liuyuanjun\yii2\extensions\helpers
+ * @package liuyuanjun\yii2\helpers
  *
  * @author  Yuanjun.Liu <6879391@qq.com>
  */

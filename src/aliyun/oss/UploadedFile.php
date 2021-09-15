@@ -1,12 +1,12 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\aliyun\oss;
+namespace liuyuanjun\yii2\aliyun\oss;
 
 use Yii;
 
 /**
  * Class UploadedFile 上传文件
- * @package liuyuanjun\yii2\extensions\helpers
+ * @package liuyuanjun\yii2\helpers
  *
  * @property-read string $errorText 错误信息 This property is read-only.
  * @author  Yuanjun.Liu <6879391@qq.com>

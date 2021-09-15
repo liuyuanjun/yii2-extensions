@@ -1,6 +1,6 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\db;
+namespace liuyuanjun\yii2\db;
 
 use Yii;
 use yii\db\ExpressionInterface;

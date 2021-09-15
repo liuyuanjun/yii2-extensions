@@ -2,8 +2,8 @@
 
 use Detection\MobileDetect;
 use GuzzleHttp\Client;
-use liuyuanjun\yii2\extensions\helpers\HttpApi;
-use liuyuanjun\yii2\extensions\web\JsonResp;
+use liuyuanjun\yii2\helpers\HttpApi;
+use liuyuanjun\yii2\web\JsonResp;
 use Symfony\Component\VarDumper\VarDumper;
 use yii\db\Connection;
 use yii\helpers\ArrayHelper;

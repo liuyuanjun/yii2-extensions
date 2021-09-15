@@ -1,6 +1,6 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\helpers;
+namespace liuyuanjun\yii2\helpers;
 
 use Yii;
 use yii\base\ErrorException;
@@ -10,7 +10,7 @@ use yii\web\HttpException;
 
 /**
  * Class Convert
- * @package liuyuanjun\yii2\extensions\helpers
+ * @package liuyuanjun\yii2\helpers
  *
  * @author Yuanjun.Liu <6879391@qq.com>
  */

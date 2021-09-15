@@ -1,6 +1,6 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\aliyun;
+namespace liuyuanjun\yii2\aliyun;
 
 use AlibabaCloud\Client\AlibabaCloud;
 use AlibabaCloud\Client\Exception\ClientException;

@@ -1,22 +1,49 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\web;
+namespace liuyuanjun\yii2\web;
 
-use liuyuanjun\yii2\extensions\log\Log;
-use liuyuanjun\yii2\extensions\helpers\Utils;
+use liuyuanjun\yii2\behaviors\LoggerBehavior;
 use Yii;
-use yii\helpers\Json;
-use yii\log\Logger;
-use yii\web\Response;
+use yii\web\Controller;
 
 /**
  * Class ApiController
- * @package liuyuanjun\yii2\extensions\web
+ * @package liuyuanjun\yii2\web
  *
  * @author  Yuanjun.Liu <6879391@qq.com>
  */
-abstract class ApiController extends \yii\web\Controller
+abstract class ApiController extends Controller
 {
-    use ApiControllerTrait;
+    public $enableCsrfValidation = false;
+    public static $pageParam = 'page';
+    public static $pageSizeParam = 'pageSize';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'logger' => [
+                'class' => LoggerBehavior::class,
+            ]
+        ];
+    }
+
+    /**
+     * @param int $defaultPageSize
+     * @return array
+     * @date   2021/8/20 17:52
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public static function getPageParams(int $defaultPageSize = 15): array
+    {
+        $req = Yii::$app->request;
+        $page = intval($req->post(static::$pageParam));
+        $pageSize = intval($req->post(static::$pageSizeParam));
+        if ($page < 1) $page = 1;
+        if ($pageSize < 1) $pageSize = $defaultPageSize;
+        return [$page, $pageSize];
+    }
 
 }

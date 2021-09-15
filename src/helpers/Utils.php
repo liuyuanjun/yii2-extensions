@@ -1,6 +1,6 @@
 <?php
 
-namespace liuyuanjun\yii2\extensions\helpers;
+namespace liuyuanjun\yii2\helpers;
 
 use Faker\Provider\Uuid;
 use Yii;
