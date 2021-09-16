@@ -161,7 +161,7 @@ class JsonResp
      * @return \yii\console\Response|Response
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public function response(bool $end)
+    public function response(bool $end = false)
     {
         return $this->resp($end);
     }
