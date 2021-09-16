@@ -71,6 +71,16 @@ class JsonResp
         } elseif (is_string($code)) {
             $realMsg = $code;
             $code = 0;
+        } elseif ($code instanceof \Exception) {
+            $realMsg = $code->getMessage();
+            if (YII_DEBUG) $data = [
+                'class' => get_class($code),
+                'trace' => $code->getTraceAsString(),
+                'file' => $code->getFile(),
+                'line' => $code->getLine(),
+                'previous' => $code->getPrevious()
+            ];
+            $code = $code->getCode();
         }
         if (static::isData($message)) {
             $data = $message;
