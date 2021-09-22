@@ -21,6 +21,27 @@ class JsonFileTarget extends FileTarget
     public $logVars = [];
 
     /**
+     * {@inheritdoc}
+     */
+    public function collect($messages, $final)
+    {
+        $this->messages = array_merge($this->messages, static::filterMessages($messages, $this->getLevels(), $this->categories, $this->except));
+        $count = count($this->messages);
+        if ($count > 0 && ($final || $this->exportInterval > 0 && $count >= $this->exportInterval)) {
+            if (!empty($context = $this->getContextMessage())) {
+                $this->messages[] = [$context, Logger::LEVEL_INFO, 'application', YII_BEGIN_TIME, [], 0];
+            }
+            // set exportInterval to 0 to avoid triggering export again while exporting
+            $oldExportInterval = $this->exportInterval;
+            $this->exportInterval = 0;
+            $this->export();
+            $this->exportInterval = $oldExportInterval;
+
+            $this->messages = [];
+        }
+    }
+
+    /**
      * Formats a log message for display as a string.
      * @param array $message the log message to be formatted.
      * The message structure follows that in [[Logger::messages]].
@@ -51,8 +72,6 @@ class JsonFileTarget extends FileTarget
         }
         $array['_traces'] = $traces;
         */
-        if ($context = $this->getContextArray())
-            $array['_context'] = $context;
         if (isset($message[5])) $array['_memoryUsage'] = $message[5];
         $array['_category'] = $category;
         $array['_level'] = $level;
@@ -76,18 +95,10 @@ class JsonFileTarget extends FileTarget
     }
 
     /**
-     * 不再使用原有context方法
-     */
-    protected function getContextMessage()
-    {
-        return '';
-    }
-
-    /**
      * 生成context信息数组
      * @return array
      */
-    protected function getContextArray()
+    protected function getContextMessage()
     {
         $context = ArrayHelper::filter($GLOBALS, $this->logVars);
         if (in_array('_POST', $this->logVars) && ($request = Yii::$app->request) instanceof Request && strpos($request->getContentType(), 'application/json') !== false) {
