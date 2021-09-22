@@ -4,9 +4,11 @@ namespace liuyuanjun\yii2\log;
 
 use liuyuanjun\yii2\helpers\Utils;
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\log\FileTarget;
 use yii\log\Logger;
+use yii\web\Request;
 
 /**
  * Class JsonFileTarget
@@ -16,6 +18,7 @@ use yii\log\Logger;
  */
 class JsonFileTarget extends FileTarget
 {
+    public $logVars = [];
 
     /**
      * Formats a log message for display as a string.
@@ -55,5 +58,22 @@ class JsonFileTarget extends FileTarget
         $array['_time'] = $this->getTime($timestamp);
 //        $prefix = $this->getMessagePrefix($message);
         return Json::encode($array);
+    }
+
+    /**
+     * Generates the context information to be logged.
+     */
+    protected function getContextMessage()
+    {
+        $context = ArrayHelper::filter($GLOBALS, $this->logVars);
+        if (in_array('_POST', $this->logVars) && ($request = Yii::$app->request) instanceof Request && strpos($request->getContentType(), 'application/json') !== false) {
+            $context['_POST'] = $request->post();
+        }
+        foreach ($this->maskVars as $var) {
+            if (ArrayHelper::getValue($context, $var) !== null) {
+                ArrayHelper::setValue($context, $var, '***');
+            }
+        }
+        return $context;
     }
 }
