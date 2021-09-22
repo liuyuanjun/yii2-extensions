@@ -56,14 +56,27 @@ class JsonFileTarget extends FileTarget
         $array['_level'] = $level;
         $array['_requestId'] = Utils::requestId();
         $array['_time'] = $this->getTime($timestamp);
-//        $prefix = $this->getMessagePrefix($message);
+        if ($prefix = $this->getMessagePrefix($message)) array_unshift($array, $prefix);
         return Json::encode($array);
     }
 
     /**
-     * Generates the context information to be logged.
+     * {@inheritdoc}
+     * @return array
      */
-    protected function getContextMessage()
+    public function getMessagePrefix($message)
+    {
+        if ($this->prefix !== null) {
+            return call_user_func($this->prefix, $message);
+        }
+        return [];
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return array
+     */
+    protected function getContextMessage(): array
     {
         $context = ArrayHelper::filter($GLOBALS, $this->logVars);
         if (in_array('_POST', $this->logVars) && ($request = Yii::$app->request) instanceof Request && strpos($request->getContentType(), 'application/json') !== false) {
