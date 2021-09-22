@@ -51,6 +51,8 @@ class JsonFileTarget extends FileTarget
         }
         $array['_traces'] = $traces;
         */
+        if ($context = $this->getContextArray())
+            $array['_context'] = $context;
         if (isset($message[5])) $array['_memoryUsage'] = $message[5];
         $array['_category'] = $category;
         $array['_level'] = $level;
@@ -74,10 +76,18 @@ class JsonFileTarget extends FileTarget
     }
 
     /**
-     * {@inheritdoc}
-     * @return array
+     * 不再使用原有context方法
      */
     protected function getContextMessage()
+    {
+        return '';
+    }
+
+    /**
+     * 生成context信息数组
+     * @return array
+     */
+    protected function getContextArray()
     {
         $context = ArrayHelper::filter($GLOBALS, $this->logVars);
         if (in_array('_POST', $this->logVars) && ($request = Yii::$app->request) instanceof Request && strpos($request->getContentType(), 'application/json') !== false) {
