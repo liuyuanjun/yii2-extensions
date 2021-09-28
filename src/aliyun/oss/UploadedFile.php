@@ -8,12 +8,14 @@ use Yii;
  * Class UploadedFile 上传文件
  * @package liuyuanjun\yii2\helpers
  *
+ * @property Oss $oss
  * @property-read string $errorText 错误信息 This property is read-only.
  * @author  Yuanjun.Liu <6879391@qq.com>
  */
 class UploadedFile extends \yii\web\UploadedFile
 {
-    protected $_ossConnectionId = 'oss';
+    protected $_oss;
+    public $defaultOssConnectionId = 'oss';
 
     const UPLOAD_ERR_ENUM = [
         UPLOAD_ERR_OK => '文件上传成功',
@@ -27,13 +29,13 @@ class UploadedFile extends \yii\web\UploadedFile
 
     /**
      * 设置OSS
-     * @param string $ossConnectionId
+     * @param Oss $oss
      * @return $this
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public function setOssConnectionId(string $ossConnectionId): UploadedFile
+    public function setOss(Oss $oss): UploadedFile
     {
-        $this->_ossConnectionId = $ossConnectionId;
+        $this->_oss = $oss;
         return $this;
     }
 
@@ -44,7 +46,7 @@ class UploadedFile extends \yii\web\UploadedFile
      */
     public function getOss(): Oss
     {
-        return Yii::$app->get($this->_ossConnectionId);
+        return $this->_oss ?: Yii::$app->get($this->defaultOssConnectionId);
     }
 
     /**

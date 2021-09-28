@@ -11,7 +11,7 @@ use yii\base\Exception;
 /**
  * Class Oss  阿里OSS Yii2 组件
  *
- * @property OssClient $client
+ * @property-read OssClient $client
  *
  * @author  Yuanjun.Liu <6879391@qq.com>
  */
@@ -51,10 +51,17 @@ class Oss extends Component
     public function getRealEndpoint(bool $internal = false)
     {
         if ($internal) {
-            return strpos($this->endpoint, '-internal') === false ? str_replace('.aliyuncs.com', '-internal.aliyuncs.com', $this->endpoint) : $this->endpoint;
+            $search = ['https://'];
+            $replace = ['http://'];
+            if (strpos($this->endpoint, '-internal') === false) {
+                $search[] = '.aliyuncs.com';
+                $replace[] = '-internal.aliyuncs.com';
+            }
         } else {
-            return strpos($this->endpoint, '-internal') === false ? $this->endpoint : str_replace('-internal.aliyuncs.com', '.aliyuncs.com', $this->endpoint);
+            $search = ['http://', '-internal.aliyuncs.com'];
+            $replace = ['https://', '.aliyuncs.com'];
         }
+        return str_replace($search, $replace, $this->endpoint);
     }
 
     /**
