@@ -2,39 +2,72 @@
 
 namespace liuyuanjun\yii2\aliyun\oss;
 
+use OSS\Core\OssException;
+use OSS\Http\ResponseCore;
 use OSS\OssClient;
 use yii\base\Component;
 use yii\base\Exception;
 
 /**
  * Class Oss  阿里OSS Yii2 组件
- * @package common\components
+ *
+ * @property OssClient $client
  *
  * @author  Yuanjun.Liu <6879391@qq.com>
  */
 class Oss extends Component
 {
-    public    $accessKeyId;
-    public    $accessKeySecret;
-    public    $endpoint;
-    public    $bucket;
-    public    $cdnUrlPrefix;
-    public    $dir = '';//目录
-    protected $_ossClient;
+    public $accessKeyId;
+    public $accessKeySecret;
+    public $endpoint;
+    public $bucket;
+    public $cdnUrlPrefix;
+    public $dir = '';//目录
+    protected $_ossClients = [];
+    protected $_internal = false;
 
     /**
      * @return OssClient
-     * @throws Exception|\OSS\Core\OssException
+     * @throws Exception|OssException
      */
-    public function getOssClient(): OssClient
+    public function getClient(): OssClient
     {
-        if ($this->_ossClient === null) {
+        $k = $this->_internal ? 'internal' : 'external';
+        if (!isset($this->_ossClients[$k])) {
             if (!$this->accessKeyId || !$this->accessKeySecret || !$this->endpoint) {
                 throw new Exception('OSS配置参数缺失');
             }
-            $this->_ossClient = new OssClient($this->accessKeyId, $this->accessKeySecret, $this->endpoint);
+            $this->_ossClients[$k] = new OssClient($this->accessKeyId, $this->accessKeySecret, $this->getRealEndpoint($this->_internal));
         }
-        return $this->_ossClient;
+        return $this->_ossClients[$k];
+    }
+
+    /**
+     * @param false $internal
+     * @return array|string|string[]
+     * @date 2021/9/28 18:49
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function getRealEndpoint(bool $internal = false)
+    {
+        if ($internal) {
+            return strpos($this->endpoint, '-internal') === false ? str_replace('.aliyuncs.com', '-internal.aliyuncs.com', $this->endpoint) : $this->endpoint;
+        } else {
+            return strpos($this->endpoint, '-internal') === false ? $this->endpoint : str_replace('-internal.aliyuncs.com', '.aliyuncs.com', $this->endpoint);
+        }
+    }
+
+    /**
+     * 使用内网
+     * @param bool $internal
+     * @return $this
+     * @date 2021/9/28 18:42
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function internal(bool $internal = true): Oss
+    {
+        $this->_internal = $internal;
+        return $this;
     }
 
     /**
@@ -48,7 +81,7 @@ class Oss extends Component
             $this->bucket = $bucket;
             return $this;
         }
-        $cloned         = clone $this;
+        $cloned = clone $this;
         $cloned->bucket = $bucket;
         return $cloned;
     }
@@ -98,11 +131,11 @@ class Oss extends Component
      * @param string $content
      * @param array|null $options
      * @return mixed
-     * @throws Exception|\OSS\Core\OssException
+     * @throws Exception|OssException
      */
     public function put(string $object, string $content, array $options = NULL)
     {
-        return $this->getOssClient()->putObject($this->bucket, $this->jointDir($object), $content, $options);
+        return $this->getClient()->putObject($this->bucket, $this->jointDir($object), $content, $options);
     }
 
     /**
@@ -110,12 +143,12 @@ class Oss extends Component
      * @param string $object
      * @param string|array|null $optionsOrFilePath
      * @return string
-     * @throws Exception|\OSS\Core\OssException
+     * @throws Exception|OssException
      */
     public function get(string $object, $optionsOrFilePath = NULL)
     {
         $options = is_string($optionsOrFilePath) ? [OssClient::OSS_FILE_DOWNLOAD => $optionsOrFilePath] : $optionsOrFilePath;
-        return $this->getOssClient()->getObject($this->bucket, $this->jointDir($object), $options);
+        return $this->getClient()->getObject($this->bucket, $this->jointDir($object), $options);
     }
 
     /**
@@ -123,63 +156,73 @@ class Oss extends Component
      * @param string $object
      * @param array|null $options
      * @return string
-     * @throws Exception|\OSS\Core\OssException
+     * @throws Exception|OssException
      */
     /**
      * @param string $object
      * @param null $options
      * @return null
-     * @throws Exception
-     * @throws \OSS\Core\OssException
+     * @throws Exception|OssException
      * @date 2021/8/26 17:19
      * @author Yuanjun.Liu <6879391@qq.com>
      */
     public function delete(string $object, $options = NULL)
     {
-        return $this->getOssClient()->deleteObject($this->bucket, $this->jointDir($object), $options);
+        return $this->getClient()->deleteObject($this->bucket, $this->jointDir($object), $options);
     }
 
     /**
      * 文件上传
      *
-     * @param string     $object
-     * @param string     $filePath
+     * @param string $object
+     * @param string $filePath
      * @param null|array $options
      * @return mixed
-     * @throws Exception
-     * @throws \OSS\Core\OssException
+     * @throws Exception|OssException
      */
     public function upload($object, $filePath, $options = NULL)
     {
-        return $this->getOssClient()->uploadFile($this->bucket, $this->jointDir($object), $filePath, $options);
+        return $this->getClient()->uploadFile($this->bucket, $this->jointDir($object), $filePath, $options);
     }
 
     /**
      * 拷贝
      *
-     * @param string     $fromObject
-     * @param string     $toBucket
-     * @param string     $toObject
+     * @param string $fromObject
+     * @param string $toBucket
+     * @param string $toObject
      * @param null|array $options
      * @return mixed
-     * @throws Exception
-     * @throws \OSS\Core\OssException
+     * @throws Exception|OssException
      */
     public function copy($fromObject, $toBucket, $toObject, $options = NULL)
     {
-        return $this->getOssClient()->copyObject($this->bucket, $fromObject, $toBucket, $this->jointDir($toObject), $options);
+        return $this->getClient()->copyObject($this->bucket, $fromObject, $toBucket, $this->jointDir($toObject), $options);
     }
 
     /**
      * 判断是否存在
-     * @param string     $object
+     * @param string $object
      * @param null|array $options
      * @return bool
-     * @throws Exception
+     * @throws Exception|OssException
      */
     public function isExists($object, $options = NULL)
     {
-        return $this->getOssClient()->doesObjectExist($this->bucket, $this->jointDir($object), $options);
+        return $this->getClient()->doesObjectExist($this->bucket, $this->jointDir($object), $options);
+    }
+
+    /**
+     * @param $object
+     * @param int $timeout
+     * @param string $method
+     * @param null $options
+     * @return ResponseCore|string
+     * @throws Exception|OssException
+     */
+    public function signUrl($object, $timeout = 60, $method = OssClient::OSS_HTTP_GET, $options = NULL)
+    {
+        return $this->getClient()->signUrl($this->bucket, $this->jointDir($object), $timeout, $method, $options);
     }
 
 }

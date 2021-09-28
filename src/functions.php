@@ -2,6 +2,7 @@
 
 use Detection\MobileDetect;
 use GuzzleHttp\Client;
+use liuyuanjun\yii2\aliyun\oss\Oss;
 use liuyuanjun\yii2\helpers\HttpApi;
 use liuyuanjun\yii2\web\JsonResp;
 use Symfony\Component\VarDumper\VarDumper;
@@ -86,7 +87,7 @@ if (!function_exists('http')) {
 
 if (!function_exists('api')) {
     /**
-     * @param string|array $baseUri  base uri or api hosts
+     * @param string|array $baseUri base uri or api hosts
      * @param string $api
      * @param bool $throwError
      * @return HttpApi|null
@@ -95,7 +96,7 @@ if (!function_exists('api')) {
      */
     function api($baseUri, string $api = '', bool $throwError = false): ?HttpApi
     {
-        if(is_array($baseUri)) {
+        if (is_array($baseUri)) {
             HttpApi::register($baseUri);
             return null;
         }
@@ -143,5 +144,20 @@ if (!function_exists('device')) {
     function device(): MobileDetect
     {
         return new MobileDetect();
+    }
+}
+
+
+if (!function_exists('oss')) {
+    /**
+     * Oss
+     * @param string $id Yii component ID
+     * @param bool $internal 是否使用内网请求
+     * @return Oss|null
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    function oss(string $id = 'oss', bool $internal = false): ?Oss
+    {
+        return ($oss = Yii::$app->get(strtolower(substr($id, -3)) === 'oss' ? $id : $id . 'Oss')) instanceof Oss ? $oss->internal($internal) : null;
     }
 }

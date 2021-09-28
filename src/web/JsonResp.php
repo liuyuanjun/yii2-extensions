@@ -6,6 +6,7 @@ use ArrayObject;
 use liuyuanjun\yii2\helpers\Utils;
 use stdClass;
 use Yii;
+use yii\base\BaseObject;
 use yii\base\UserException;
 use yii\helpers\BaseConsole;
 use yii\helpers\Console;
@@ -17,7 +18,7 @@ use yii\web\Response;
  *
  * @author  Yuanjun.Liu <6879391@qq.com>
  */
-class JsonResp
+class JsonResp extends BaseObject
 {
     const CODE_SUCCESS = 200;
 
@@ -31,11 +32,10 @@ class JsonResp
     protected $_data = [];
     protected $_options = ['filters' => [], 'headers' => []];
 
-    public function __construct($code)
+    public function __construct($code, $config = [])
     {
-        if (!is_null($code)) {
-            $this->_code = $code;
-        }
+        $this->code($code);
+        parent::__construct($config);
     }
 
     /**
@@ -211,6 +211,19 @@ class JsonResp
     {
         $this->prepare();
         return $this->_data['message'];
+    }
+
+    /**
+     * 指定code
+     * @param int $code
+     * @return $this
+     * @date 2021/9/28 16:57
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    private function code(int $code): JsonResp
+    {
+        $this->_code = $code;
+        return $this;
     }
 
     /**

@@ -6,23 +6,34 @@ use GuzzleHttp\Client;
 use liuyuanjun\yii2\log\Log;
 use Psr\Http\Message\ResponseInterface;
 use Yii;
+use yii\base\BaseObject;
 use yii\base\Exception;
 use yii\helpers\Json;
 use yii\log\Logger;
 
 /**
  * HTTP接口调用
+ *
+ * @property array $options
+ * @property \Exception|null $error
+ * @property ResponseInterface|null $response
+ *
  * @author Yuanjun.Liu <6879391@qq.com>
  */
-class HttpApi
+class HttpApi extends BaseObject
 {
     private static $_apiHosts = [];
     private static $_logName = 'http_api_request';
     protected $_api;
     protected $_params = [];
+    /**
+     * @var array
+     * @see https://guzzle-cn.readthedocs.io/zh_CN/latest/request-options.html
+     */
     protected $_options = ['timeout' => 20, 'headers' => []];
     protected $_log = [];
     protected $_error = null;
+    protected $_response = null;
     public $throwError = false;
 
     /**
@@ -80,10 +91,13 @@ class HttpApi
         self::$_logName = $logName;
     }
 
-
-    protected function __construct($baseUri = '')
+    public function __construct($config = [])
     {
-        if ($baseUri) $this->_options['base_uri'] = $baseUri;
+        if (!empty($config) && is_string($config)) {
+            $this->_options['base_uri'] = $config;
+        } else {
+            parent::__construct($config);
+        }
         $this->_options['headers']['X-Request-Id'] = Utils::requestId();
     }
 
@@ -124,6 +138,30 @@ class HttpApi
         $this->_params = [];
         $this->_api = null;
         return $this;
+    }
+
+    /**
+     * 设置 options
+     * @param array $options
+     * @return $this
+     * @date 2021/9/28 17:30
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function setOptions(array $options): HttpApi
+    {
+        $this->_options = array_merge($this->_options, $options);
+        return $this;
+    }
+
+    /**
+     * 获取 options
+     * @return array
+     * @date 2021/9/28 17:31
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function getOptions(): array
+    {
+        return $this->_options;
     }
 
     /**
@@ -193,6 +231,17 @@ class HttpApi
     }
 
     /**
+     * 获取response
+     * @return null|ResponseInterface
+     * @date 2021/9/28 17:11
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function getResponse(): ?ResponseInterface
+    {
+        return $this->_response;
+    }
+
+    /**
      * 请求
      * @param string $method
      * @param array $params
@@ -214,7 +263,7 @@ class HttpApi
             $log = ['method' => $method, 'api' => $this->_api, 'options' => $this->_options];
             $client = new Client();
             /** @var ResponseInterface $res */
-            $res = $client->$method($this->_api, $this->_options);
+            $res = $this->_response = $client->$method($this->_api, $this->_options);
             $stringBody = (string)$res->getBody();
             $log['response'] = mb_strlen($stringBody) > 500 ? mb_substr($stringBody, 0, 500) . '...' : $stringBody;
             $result = $stringBody && $jsonDecode ? Json::decode($stringBody) : $stringBody;
