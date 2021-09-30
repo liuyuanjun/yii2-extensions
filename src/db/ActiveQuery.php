@@ -4,6 +4,7 @@ namespace liuyuanjun\yii2\db;
 
 
 use liuyuanjun\yii2\softdelete\SoftDeleteActiveQuery;
+use yii\db\Exception;
 
 /**
  * Class ActiveQuery.
@@ -62,25 +63,25 @@ class ActiveQuery extends SoftDeleteActiveQuery
      * @param $fields
      * @param $keywords
      * @param int $mode
-     * @return $this
-     * @date 2021/9/8 16:14
+     * @return array
+     * @date 2021/9/30 09:48
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    protected function buildLikeCondition($fields, $keywords, int $mode = self::LIKE_MODE_WORD_AND_FIELD_OR): ActiveQuery
+    protected function buildLikeCondition($fields, $keywords, int $mode = self::LIKE_MODE_WORD_AND_FIELD_OR): array
     {
         //1匹配所有词  2匹配任意词  4匹配所有字段  8匹配任意字段
+        $conditions = [];
         if (is_string($keywords)) {
             $keywords = explode(' ', $keywords);
         } elseif (is_bool($keywords[1])) {
             $keywords = [$keywords];
         }
         $keywords = array_unique(array_filter($keywords));
-        if (empty($keywords)) return $this;
+        if (empty($keywords)) return $conditions;
         foreach ($keywords as $k => $keyword) {
             if (is_string($keyword)) $keywords[$k] = [$keyword, strpos($keyword, '%') === false];
         }
         $fields = (array)$fields;
-        $conditions = [];
         foreach ($fields as $field) {
             $temp = [];
             foreach ($keywords as $keyword) {
