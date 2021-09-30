@@ -100,7 +100,7 @@ class JsonResp extends BaseObject
     {
         $instance = new static($code);
         $message && $instance->msg($message);
-        $data && $instance->data($data);
+        $data === null || $instance->data($data);
         return $instance;
     }
 
