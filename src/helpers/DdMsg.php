@@ -5,7 +5,6 @@ namespace liuyuanjun\yii2\helpers;
 use GuzzleHttp\Client;
 use liuyuanjun\yii2\log\Log;
 use Yii;
-use yii\base\Exception;
 use yii\helpers\Json;
 use yii\log\Logger;
 
@@ -151,7 +150,6 @@ class DdMsg
      * 发送群机器人消息
      * @param string $accessToken
      * @return false|mixed|null
-     * @throws \GuzzleHttp\Exception\GuzzleException
      * @date 2021/8/31 11:33
      * @author Yuanjun.Liu <6879391@qq.com>
      */
@@ -165,7 +163,7 @@ class DdMsg
             $stringBody = (string)$res->getBody();
             $log['response'] = $stringBody;
             $result = $stringBody ? Json::decode($stringBody) : false;
-        } catch (\Exception $e) {
+        } catch (\Exception | \Throwable $e) {
             $log = $log + ['errCode' => $e->getCode(), 'errMsg' => $e->getMessage(), 'errTrace' => $e->getTraceAsString()];
             $result = false;
         }
