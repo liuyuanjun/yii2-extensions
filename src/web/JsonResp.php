@@ -39,6 +39,7 @@ class JsonResp extends BaseObject
     }
 
     /**
+     * 返回成功
      * @param string|array $message
      * @param array|stdClass|ArrayObject $data
      * @return mixed|\yii\console\Response|Response
@@ -55,6 +56,7 @@ class JsonResp extends BaseObject
     }
 
     /**
+     * 返回失败
      * @param int|string|array $code
      * @param string|array $message
      * @param array|stdClass|ArrayObject $data
@@ -63,6 +65,35 @@ class JsonResp extends BaseObject
      * @author Yuanjun.Liu <6879391@qq.com>
      */
     public static function fail($code = 0, $message = '', $data = null)
+    {
+        [$code, $message, $data] = static::parseFailArg($code, $message, $data);
+        return (static::instance($code, $message, $data))->resp();
+    }
+
+    /**
+     * 返回失败并结束
+     * @param int|string|array $code
+     * @param string|array $message
+     * @param array|stdClass|ArrayObject $data
+     * @date 2021/10/11 16:54
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public static function abort($code = 0, $message = '', $data = null)
+    {
+        [$code, $message, $data] = static::parseFailArg($code, $message, $data);
+        static::instance($code, $message, $data)->resp(true);
+    }
+
+    /**
+     * 解析失败快捷方法参数
+     * @param int $code
+     * @param string $message
+     * @param null $data
+     * @return array
+     * @date 2021/10/11 16:51
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    protected static function parseFailArg($code = 0, $message = '', $data = null): array
     {
         $realMsg = $message;
         if (static::isData($code)) {
@@ -86,7 +117,7 @@ class JsonResp extends BaseObject
             $data = $message;
             $realMsg = '';
         }
-        return (static::instance($code, $realMsg, $data))->resp();
+        return [$code, $realMsg, $data];
     }
 
     /**
