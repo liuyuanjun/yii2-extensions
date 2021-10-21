@@ -86,9 +86,9 @@ class JsonResp extends BaseObject
 
     /**
      * 解析失败快捷方法参数
-     * @param int $code
-     * @param string $message
-     * @param null $data
+     * @param int|string|array $code
+     * @param string|array $message
+     * @param array|stdClass|ArrayObject $data
      * @return array
      * @date 2021/10/11 16:51
      * @author Yuanjun.Liu <6879391@qq.com>
@@ -247,14 +247,13 @@ class JsonResp extends BaseObject
     /**
      * 指定code
      * @param int $code
-     * @return $this
+     * @return void
      * @date 2021/9/28 16:57
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    private function code(int $code): JsonResp
+    private function code(int $code): void
     {
         $this->_code = $code;
-        return $this;
     }
 
     /**
