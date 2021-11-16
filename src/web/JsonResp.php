@@ -208,6 +208,17 @@ class JsonResp extends BaseObject
     }
 
     /**
+     * 结束
+     * @return mixed|\yii\console\Response|Response
+     * @date 2021/11/16 15:15
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function end()
+    {
+        return $this->resp(true);
+    }
+
+    /**
      * 抛异常，抛异常时data会忽略
      * @param string $exceptionClass
      * @author Yuanjun.Liu <6879391@qq.com>
