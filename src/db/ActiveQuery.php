@@ -85,7 +85,7 @@ class ActiveQuery extends SoftDeleteActiveQuery
         foreach ($fields as $field) {
             $temp = [];
             foreach ($keywords as $keyword) {
-                $temp[] = ['like', $field, $keyword[0], $keyword[1]];
+                $temp[] = $keyword[1] ? ['like', $field, $keyword[0]] : ['like', $field, $keyword[0], $keyword[1]];
             }
             if (count($temp) == 1) {
                 $temp = $temp[0];
