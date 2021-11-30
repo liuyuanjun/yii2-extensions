@@ -12,11 +12,14 @@ trait CamelizeTrait
 {
     /**
      * 驼峰规则
+     * ```
+     * return ['id' => 'orderId'];
+     * ```
      * @return string[]
      * @date   2021/10/25 15:48
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function getCamelizeRules(): array
+    public static function camelizeRules(): array
     {
         return [];
     }
@@ -40,7 +43,7 @@ trait CamelizeTrait
             unset($flipNames[$name]);
         }
         $names = array_flip($flipNames);
-        $rules = static::getCamelizeRules();
+        $rules = static::camelizeRules();
         foreach ($names as $name) {
             $camelizeName          = $rules[$name] ?? lcfirst(Inflector::camelize($name));
             $values[$camelizeName] = $this->$name;
@@ -58,7 +61,7 @@ trait CamelizeTrait
      */
     public function setCamelizeAttributes($values, $safeOnly = true)
     {
-        $rules     = array_flip(static::getCamelizeRules());
+        $rules     = array_flip(static::camelizeRules());
         $newValues = [];
         foreach ($values as $name => $value) {
             $realName             = $rules[$name] ?? Inflector::underscore($name);
