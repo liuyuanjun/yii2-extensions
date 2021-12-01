@@ -237,7 +237,7 @@ class JsonResp extends BaseObject
     public function print()
     {
         $string = "[{$this->_code}] " . $this->_data['message'] . "\n";
-        if ($this->_data['data']) $string .= 'DATA: ' . Json::encode($this->_data['data']) . "\n";
+        if (isset($this->_data['data'])) $string .= 'DATA: ' . Json::encode($this->_data['data']) . "\n";
         if (Console::streamSupportsAnsiColors($this->_code == static::CODE_SUCCESS ? \STDOUT : \STDERR)) {
             $string = Console::ansiFormat($string, [$this->_code == static::CODE_SUCCESS ? BaseConsole::FG_GREEN : BaseConsole::FG_RED]);
         }
