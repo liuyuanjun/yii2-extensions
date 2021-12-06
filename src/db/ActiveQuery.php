@@ -106,14 +106,17 @@ class ActiveQuery extends SoftDeleteActiveQuery
      * 分页列表
      * @param int $page
      * @param int $pageSize
+     * @param callable|null $callback
      * @return array
      * @date   2020/8/5 20:44
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public function page(int $page = 1, int $pageSize = 20): array
+    public function page(int $page = 1, int $pageSize = 20, callable $callback = null): array
     {
         $pagination = $this->pagination($page, $pageSize);
-        $rows = $this->limit($pagination['pageSize'])->offset($pagination['offset'])->all();
+        $rows       = $this->limit($pagination['pageSize'])->offset($pagination['offset'])->all();
+        if ($callback)
+            $rows = array_map($callback, $rows);
         return ['list' => $rows, 'page' => $pagination];
     }
 
