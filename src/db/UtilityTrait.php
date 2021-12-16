@@ -35,7 +35,7 @@ trait UtilityTrait
         if ($showAllErrors) {
             return implode("\n ", $this->getErrorSummary(true));
         } else {
-            return current(current($this->getErrors()));
+            return !empty($errors = $this->getErrors()) && !empty($error = reset($errors)) ? reset($error) : '';
         }
     }
 
@@ -51,7 +51,7 @@ trait UtilityTrait
     public static function firstOrCreate(array $conditions, array $attributes, bool $runValidation = true)
     {
         $model = static::firstOrNew($conditions, $attributes);
-        if($model->isNewRecord){
+        if ($model->isNewRecord) {
             $model->save($runValidation);
         }
         return $model;
