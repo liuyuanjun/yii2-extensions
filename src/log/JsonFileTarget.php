@@ -102,7 +102,7 @@ class JsonFileTarget extends FileTarget
     {
         $context = ArrayHelper::filter($GLOBALS, $this->logVars);
         if (in_array('_POST', $this->logVars) && ($request = Yii::$app->request) instanceof Request && strpos($request->getContentType(), 'application/json') !== false) {
-            $context['_POST'] = $request->post();
+            $context['_POST'] = $request->getRawBody();
         }
         foreach ($this->maskVars as $var) {
             if (ArrayHelper::getValue($context, $var) !== null) {
