@@ -39,10 +39,9 @@ abstract class ApiController extends Controller
     public static function getPageParams(int $defaultPageSize = 15): array
     {
         $req = Yii::$app->request;
-        $page = intval($req->post(static::$pageParam));
-        $pageSize = intval($req->post(static::$pageSizeParam));
+        $page = intval($req->post(static::$pageParam, 1));
+        $pageSize = intval($req->post(static::$pageSizeParam, $defaultPageSize));
         if ($page < 1) $page = 1;
-        if ($pageSize < 1) $pageSize = $defaultPageSize;
         return [$page, $pageSize];
     }
 
