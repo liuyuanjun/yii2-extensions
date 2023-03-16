@@ -109,7 +109,7 @@ trait UtilityTrait
      */
     public static function batchInsert(array $rows, array $columns = null, bool $ignore = false): int
     {
-        if (empty($columns)) $columns = array_keys($rows[0]);
+        if (empty($columns)) $columns = reset($rows);
         $sql = static::getDb()->queryBuilder->batchInsert(static::tableName(), $columns, $rows);
         if ($ignore) {
             $arr = explode(' ', $sql, 2);
