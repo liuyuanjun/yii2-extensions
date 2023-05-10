@@ -382,7 +382,7 @@ class JsonResp extends BaseObject
                 $this->_data['data'] = call_user_func($filter, $this->_data['data']);
             }
         }
-        if (isset($this->_data['data']) && $this->_data['data'] === null) unset($this->_data['data']);
+//        if (isset($this->_data['data']) && $this->_data['data'] === null) unset($this->_data['data']);
     }
 
     /**
