@@ -375,7 +375,7 @@ class JsonResp extends BaseObject
         if (!YII_ENV_PROD) $this->_data['takeTime'] = sprintf('%.3f', (microtime(true) - YII_BEGIN_TIME) * 1000) . ' ms';
         $this->_data['serverTime'] = date('Y-m-d H:i:s', (int)YII_BEGIN_TIME);
         empty($this->_args) || $this->_data['message'] = call_user_func_array('sprintf', array_merge([$this->_data['message']], $this->_args));
-        if (isset($this->_data['data']) && empty($this->_data['data'])) $this->_data['data'] = new \ArrayObject;
+        if (!isset($this->_data['data']) || $this->_data['data'] === null) $this->_data['data'] = new \ArrayObject;
         if (static::$_defaultFilter) array_unshift($this->_options['filters'], static::$_defaultFilter);
         if (!empty($this->_options['filters']) && !empty($this->_data['data'])) {
             foreach ($this->_options['filters'] as $filter) {
