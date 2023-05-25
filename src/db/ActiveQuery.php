@@ -113,8 +113,13 @@ class ActiveQuery extends SoftDeleteActiveQuery
      */
     public function page(int $page = 1, int $pageSize = 20, callable $callback = null): array
     {
-        $pagination = $this->pagination($page, $pageSize);
-        $rows       = $this->limit($pagination['pageSize'])->offset($pagination['offset'])->all();
+        if ($pageSize > 0) {
+            $pagination = $this->pagination($page, $pageSize);
+            $rows       = $this->limit($pagination['pageSize'])->offset($pagination['offset'])->all();
+        } else {
+            $rows       = $this->all();
+            $pagination = ['offset' => 0, 'pageSize' => -1, 'page' => 1, 'totalPage' => 1, 'totalNum' => count($rows)];
+        }
         if ($callback)
             $rows = array_map($callback, $rows);
         return ['list' => $rows, 'page' => $pagination];
