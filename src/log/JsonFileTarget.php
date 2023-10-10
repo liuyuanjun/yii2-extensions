@@ -79,7 +79,7 @@ class JsonFileTarget extends FileTarget
         $array['_time'] = $this->getTime($timestamp);
         if ($prefix = $this->getMessagePrefix($message))
             $array = array_merge($prefix, $array);
-        return Json::encode($array);
+        return Json::encode($array) . "\n";
     }
 
     /**
