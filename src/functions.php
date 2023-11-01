@@ -129,7 +129,7 @@ if (!function_exists('resp')) {
      */
     function resp($code = null): JsonResp
     {
-        $realCode = is_int($code) ? $code : JsonResp::CODE_SUCCESS;
+        $realCode = is_int($code) ? $code : JsonResp::$successCode;
         $instance = new JsonResp($realCode);
         if (is_string($code)) $instance->msg($code);
         elseif (is_array($code)) $instance->data($code);

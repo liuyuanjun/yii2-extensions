@@ -20,9 +20,10 @@ use yii\web\Response;
  */
 class JsonResp extends BaseObject
 {
-    const CODE_SUCCESS = 200;
+    public static $defaultErrorCode = 0;
+    public static $successCode = 200;
 
-    private static $_errorCodes = [0 => 'FAIL', 200 => 'OK'];
+    private static $_errorCodes = [];
     public static $undefinedErrorMessage = '未定义错误。';
 
     private static $_defaultFilter;
@@ -52,7 +53,7 @@ class JsonResp extends BaseObject
             $data = $message;
             $message = '';
         }
-        return (static::instance(static::CODE_SUCCESS, $message, $data))->resp();
+        return (static::instance(static::$successCode, $message, $data))->resp();
     }
 
     /**
@@ -64,7 +65,7 @@ class JsonResp extends BaseObject
      * @date 2021/8/31 15:33
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function fail($code = 0, $message = '', $data = null)
+    public static function fail($code = null, $message = '', $data = null)
     {
         [$code, $message, $data] = static::parseFailArg($code, $message, $data);
         return (static::instance($code, $message, $data))->resp();
@@ -78,7 +79,7 @@ class JsonResp extends BaseObject
      * @date 2021/10/11 16:54
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function abort($code = 0, $message = '', $data = null)
+    public static function abort($code = null, $message = '', $data = null)
     {
         [$code, $message, $data] = static::parseFailArg($code, $message, $data);
         static::instance($code, $message, $data)->resp(true);
@@ -86,22 +87,24 @@ class JsonResp extends BaseObject
 
     /**
      * 解析失败快捷方法参数
-     * @param int|string|array $code
+     * @param int|string|array|null $code
      * @param string|array $message
      * @param array|stdClass|ArrayObject $data
      * @return array
      * @date 2021/10/11 16:51
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    protected static function parseFailArg($code = 0, $message = '', $data = null): array
+    protected static function parseFailArg($code = null, $message = '', $data = null): array
     {
         $realMsg = $message;
-        if (static::isData($code)) {
+        if ($code === null) {
+            $code = static::$defaultErrorCode;
+        } elseif (static::isData($code)) {
             $data = $code;
-            $code = 0;
+            $code = static::$defaultErrorCode;
         } elseif (is_string($code)) {
             $realMsg = $code;
-            $code = 0;
+            $code = static::$defaultErrorCode;
         } elseif ($code instanceof \Exception) {
             $realMsg = $code->getMessage();
             if (YII_DEBUG) $data = [
@@ -238,10 +241,10 @@ class JsonResp extends BaseObject
     {
         $string = "[{$this->_code}] " . $this->_data['message'] . "\n";
         if (isset($this->_data['data'])) $string .= 'DATA: ' . Json::encode($this->_data['data']) . "\n";
-        if (Console::streamSupportsAnsiColors($this->_code == static::CODE_SUCCESS ? \STDOUT : \STDERR)) {
-            $string = Console::ansiFormat($string, [$this->_code == static::CODE_SUCCESS ? BaseConsole::FG_GREEN : BaseConsole::FG_RED]);
+        if (Console::streamSupportsAnsiColors($this->_code == static::$successCode ? \STDOUT : \STDERR)) {
+            $string = Console::ansiFormat($string, [$this->_code == static::$successCode ? BaseConsole::FG_GREEN : BaseConsole::FG_RED]);
         }
-        fwrite($this->_code == static::CODE_SUCCESS ? \STDOUT : \STDERR, $string);
+        fwrite($this->_code == static::$successCode ? \STDOUT : \STDERR, $string);
     }
 
     /**
@@ -370,7 +373,7 @@ class JsonResp extends BaseObject
     protected function prepare()
     {
         $this->_data['code'] = $this->_code;
-        $this->_data['message'] = $this->_data['message'] ?? self::$_errorCodes[$this->_code] ?? static::$undefinedErrorMessage;
+        $this->setMessage();
         $this->_data['requestId'] = Utils::requestId();
         if (!YII_ENV_PROD) $this->_data['takeTime'] = sprintf('%.3f', (microtime(true) - YII_BEGIN_TIME) * 1000) . ' ms';
         $this->_data['serverTime'] = date('Y-m-d H:i:s', (int)YII_BEGIN_TIME);
@@ -383,6 +386,20 @@ class JsonResp extends BaseObject
             }
         }
 //        if (isset($this->_data['data']) && $this->_data['data'] === null) unset($this->_data['data']);
+    }
+
+    protected function setMessage()
+    {
+        if (!empty($this->_data['message'])) return;
+        if (isset(self::$_errorCodes[$this->_code])) {
+            $this->_data['message'] = self::$_errorCodes[$this->_data['code']];
+            return;
+        }
+        if ($this->_code === static::$successCode) {
+            $this->_data['message'] = 'SUCCESS';
+            return;
+        }
+        $this->_data['message'] = static::$undefinedErrorMessage;
     }
 
     /**
