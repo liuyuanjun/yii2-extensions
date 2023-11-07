@@ -17,7 +17,8 @@
         "phpoffice/phpspreadsheet": "^1.18",
         "alibabacloud/sdk": "^1.8",
         "fakerphp/faker": "^1.15",
-        "mobiledetect/mobiledetectlib": "^2.8"
+        "mobiledetect/mobiledetectlib": "^2.8",
+        "vlucas/phpdotenv": "^5.5"
     },
     "license": "MIT",
     "authors": [
@@ -40,5 +41,10 @@
             "type": "composer",
             "url": "https://asset-packagist.org"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
+    }
 }

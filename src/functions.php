@@ -9,6 +9,43 @@ use Symfony\Component\VarDumper\VarDumper;
 use yii\db\Connection;
 use yii\helpers\ArrayHelper;
 
+if (defined('ROOT_PATH')) {
+    Dotenv\Dotenv::createImmutable(ROOT_PATH)->load();
+}
+if (!function_exists('env')) {
+    /**
+     * 获取环境变量
+     * @param string $key
+     * @param null $default
+     * @return array|bool|mixed|string|null
+     */
+    function env(string $key, $default = null)
+    {
+        $value = getenv($key);
+        if ($value === false) {
+            if ($default instanceof Closure || (is_array($default) && is_callable($default))) {
+                return call_user_func($default);
+            }
+            return $default;
+        }
+        switch (strtolower($value)) {
+            case 'true':
+            case '(true)':
+                return true;
+            case 'false':
+            case '(false)':
+                return false;
+            case 'empty':
+            case '(empty)':
+                return '';
+            case 'null':
+            case '(null)':
+                return null;
+        }
+        return $value;
+    }
+}
+
 if (!function_exists('conf')) {
     /**
      * 配置
