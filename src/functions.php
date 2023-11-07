@@ -21,13 +21,13 @@ if (!function_exists('env')) {
      */
     function env(string $key, $default = null)
     {
-        $value = getenv($key);
-        if ($value === false) {
+        if (!isset($_ENV[$key])) {
             if ($default instanceof Closure || (is_array($default) && is_callable($default))) {
                 return call_user_func($default);
             }
             return $default;
         }
+        $value = $_ENV[$key];
         switch (strtolower($value)) {
             case 'true':
             case '(true)':
