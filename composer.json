@@ -9,7 +9,7 @@
         "ext-simplexml": "*",
         "ext-libxml": "*",
         "yiisoft/yii2": ">=2.0.47",
-        "liuyuanjun/yii2-softdelete": "dev-main",
+        "liuyuanjun/yii2-softdelete": ">=1.1",
         "yiisoft/yii2-redis": "^2.0",
         "symfony/var-dumper": "^5.3",
         "guzzlehttp/guzzle": "^7.3",
