@@ -44,7 +44,7 @@ class LoggerBehavior extends Behavior
      */
     public function writeLog()
     {
-        if (!$this->logName) return;
+        if(!empty($this->owner->disableLog) || !$this->logName) return;
         $req = Yii::$app->request;
         $res = Yii::$app->response;
         $resData = is_string($res->data) ? str_replace(["\r", "\n"], ' ', $res->data) : Json::encode($res->data);
