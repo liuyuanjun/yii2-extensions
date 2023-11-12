@@ -17,6 +17,7 @@ abstract class ApiController extends Controller
     public $enableCsrfValidation = false;
     public static $pageParam = 'page';
     public static $pageSizeParam = 'pageSize';
+    public $disableLog = false; //使用LoggerBehavior时，可设置为true禁用日志记录
 
     /**
      * {@inheritdoc}
