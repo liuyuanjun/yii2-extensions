@@ -5,6 +5,7 @@ namespace liuyuanjun\yii2\web;
 use liuyuanjun\yii2\behaviors\LoggerBehavior;
 use Yii;
 use yii\web\Controller;
+use yii\web\Response;
 
 /**
  * Class ApiController
@@ -29,6 +30,12 @@ abstract class ApiController extends Controller
                 'class' => LoggerBehavior::class,
             ]
         ];
+    }
+
+    public function init()
+    {
+        parent::init();
+        Yii::$app->response->format = Response::FORMAT_JSON;
     }
 
     /**
