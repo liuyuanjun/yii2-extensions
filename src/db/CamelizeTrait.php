@@ -25,6 +25,30 @@ trait CamelizeTrait
     }
 
     /**
+     * 获取驼峰化属性名
+     * @param $names
+     * @param $except
+     * @return array
+     * @author Yuanjun.Liu <6879391@qq.com>
+     * @time 2023/12/22 16:36
+     */
+    public function camelCaseAttributes($names = null, $except = []): array
+    {
+        if ($names === null) {
+            $names = $this->attributes();
+        }
+        $camelCaseNames = array_flip($names);
+        foreach ($except as $name) {
+            unset($camelCaseNames[$name]);
+        }
+        $rules = static::camelizeRules();
+        foreach ($camelCaseNames as $name => &$value) {
+            $value          = $rules[$name] ?? lcfirst(Inflector::camelize($name));
+        }
+        return $camelCaseNames;
+    }
+
+    /**
      * 获取驼峰化属性
      * @param null  $names
      * @param array $except
