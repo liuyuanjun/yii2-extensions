@@ -177,7 +177,8 @@ class XlsxReader
      */
     public function getCellValue(int $col, int $row): string
     {
-        $value = trim($this->getCell($col, $row)->getValue());
+        $value = $this->getCell($col, $row)->getValue();
+        if(is_string($value)) $value = trim($value);
         return in_array($value, $this->ignoreValue) ? '' : $value;
     }
 
