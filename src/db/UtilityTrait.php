@@ -3,6 +3,7 @@
 namespace liuyuanjun\yii2\db;
 
 use Yii;
+use yii\db\Exception;
 use yii\db\ExpressionInterface;
 
 /**
@@ -154,6 +155,55 @@ trait UtilityTrait
             $transaction->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * 批量保存
+     * @param static[]|array $models
+     * @param bool           $runValidation
+     * @param array|null     $attributeNames
+     * @return bool
+     * @throws \yii\db\Exception
+     * @author Yuanjun.Liu <6879391@qq.com>
+     * @time   2023/12/15 16:36
+     */
+    public static function saveAll(array $models, $runValidation = true, $attributeNames = null): bool
+    {
+        $transaction = static::getDb()->beginTransaction();
+        try {
+            foreach ($models as $model) {
+                if (!$model->save($runValidation, $attributeNames)) {
+                    throw new Exception('保存失败' . $model->getErrorStr());
+                }
+            }
+            $transaction->commit();
+            return true;
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    public function isAnyAttrChanged(...$names): bool
+    {
+        foreach ($names as $name) {
+            if ($this->isAttributeChanged($name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getAttrDiff(array $names = null): array
+    {
+        $diff = [];
+        if (!empty($dirtyAttributes = $this->getDirtyAttributes($names))) {
+            $oldAttributes = $this->getOldAttributes();
+            foreach ($dirtyAttributes as $key => $value) {
+                $diff[$key] = ['old' => $oldAttributes[$key], 'new' => $value];
+            }
+        }
+        return $diff;
     }
 
 }
