@@ -47,7 +47,7 @@ class XlsxReader
     protected $_spreadsheet;
     protected $_tmpPath;
     protected $_sheetIndex = 0;
-    public    $ignoreValue = ['-'];
+    public $ignoreValue = ['-'];
 
     /**
      * XlsxReader constructor.
@@ -65,7 +65,7 @@ class XlsxReader
     /**
      * 读取
      * @param array $colParseRule
-     * @param int   $startRowNo
+     * @param int $startRowNo
      * @return array
      * @throws Exception
      * @throws \PhpOffice\PhpSpreadsheet\Exception
@@ -75,7 +75,7 @@ class XlsxReader
      */
     public function readByRule(array $colParseRule, int $startRowNo = 1): array
     {
-        $data  = [];
+        $data = [];
         $sheet = $this->getSheet();
         $total = $sheet->getHighestRow();
         if ($total < 1) throw new Exception('没有记录可导出');
@@ -119,7 +119,7 @@ class XlsxReader
      */
     public function readAll(int $startRowNo = 1): array
     {
-        $sheet      = $this->getSheet();
+        $sheet = $this->getSheet();
         $highestRow = $sheet->getHighestRow();
         $highestCol = Coordinate::columnIndexFromString($sheet->getHighestColumn());
         if ($highestRow < 1) throw new Exception('没有记录可导出');
@@ -145,7 +145,7 @@ class XlsxReader
     public function readRow(int $row): array
     {
         $highestCol = Coordinate::columnIndexFromString($this->getSheet()->getHighestColumn());
-        $data       = [];
+        $data = [];
         for ($col = 1; $col <= $highestCol; $col++) {
             $data[$col] = $this->getCellValue($col, $row);
         }
@@ -177,8 +177,8 @@ class XlsxReader
      */
     public function getCellValue(int $col, int $row): string
     {
-        $value = $this->getCell($col, $row)->getValue();
-        if(is_string($value)) $value = trim($value);
+        $value = (string)$this->getCell($col, $row)->getValue();
+        $value = trim($value);
         return in_array($value, $this->ignoreValue) ? '' : $value;
     }
 
@@ -227,7 +227,7 @@ class XlsxReader
     /**
      * 设置文件
      * @param string $filePath
-     * @param bool   $checkExt
+     * @param bool $checkExt
      * @return XlsxReader
      * @throws Exception
      * @author Yuanjun.Liu <6879391@qq.com>
@@ -275,9 +275,9 @@ class XlsxReader
     protected function reset()
     {
         $this->_xlsxFilePath = null;
-        $this->_spreadsheet  = null;
-        $this->_tmpPath      = null;
-        $this->_sheetIndex   = 0;
+        $this->_spreadsheet = null;
+        $this->_tmpPath = null;
+        $this->_sheetIndex = 0;
     }
 
     /**
