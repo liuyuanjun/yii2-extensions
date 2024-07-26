@@ -50,12 +50,12 @@ class LoggerBehavior extends Behavior
         $res = Yii::$app->response;
         $resData = is_string($res->data) ? str_replace(["\r", "\n"], ' ', $res->data) : Json::encode($res->data);
         $log = array_merge([
-            'ip' => Utils::getRealIp() ?? $req->getUserIP() ?? '-',
-            'controller' => Yii::$app->controller->id,
-            'action' => Yii::$app->controller->action->id,
-            'getParams' => $req->get(),
-            'postParams' => $req->post(),
+            'route' => Yii::$app->requestedRoute,
+            'get' => $req->get(),
+            'post' => $req->post(),
+            'header' => $req->headers->toArray(),
             'response' => mb_strlen($resData) > 500 ? mb_substr($resData, 0, 500) . '...' : $resData,
+            'ip' => Utils::getRealIp() ?? $req->getUserIP() ?? '-',
         ], $this->prepareExtInfo());
         Log::info($log, $this->logName, '_d_ymd');
     }

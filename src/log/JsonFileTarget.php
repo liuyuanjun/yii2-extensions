@@ -76,6 +76,7 @@ class JsonFileTarget extends FileTarget
         $array['_category'] = $category;
         $array['_level'] = $level;
         $array['_requestId'] = Utils::requestId();
+        $array['_appId'] = Yii::$app->id ?? 'undefined';
         $array['_time'] = $this->getTime($timestamp);
         if ($prefix = $this->getMessagePrefix($message))
             $array = array_merge($prefix, $array);
