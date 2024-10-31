@@ -67,7 +67,7 @@ class ActiveQuery extends SoftDeleteActiveQuery
      * @date 2021/9/30 09:48
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    protected function buildLikeCondition($fields, $keywords, int $mode = self::LIKE_MODE_WORD_AND_FIELD_OR): array
+    public function buildLikeCondition($fields, $keywords, int $mode = self::LIKE_MODE_WORD_AND_FIELD_OR): array
     {
         //1匹配所有词  2匹配任意词  4匹配所有字段  8匹配任意字段
         $conditions = [];
