@@ -23,7 +23,8 @@ use yii\log\Logger;
 class HttpApi extends BaseObject
 {
     private static $_apiHosts = [];
-    private static $_logName = 'http_api_request';
+    private static $_logCate = 'http_api_request'; // 日志分类, 留空则不记录日志
+    private static $_logFile = 'http_api_request'; // 默认日志文件名, 留空则保存至 app.log
     protected $_api;
     protected $_params = [];
     /**
@@ -82,13 +83,14 @@ class HttpApi extends BaseObject
 
     /**
      * 设置日志
-     * @param string $logName
+     * @param string $logCate
      * @date 2021/9/15 11:58
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function setLog(string $logName)
+    public static function setLog(string $logCate, string $logFile = '')
     {
-        self::$_logName = $logName;
+        self::$_logCate = $logCate;
+        self::$_logFile = $logFile;
     }
 
     public function __construct($config = [])
@@ -273,8 +275,8 @@ class HttpApi extends BaseObject
             $result = false;
         }
         $this->_log[] = $log;
-        if (static::$_logName)
-            Log::json($log, $result === false ? Logger::LEVEL_ERROR : Logger::LEVEL_INFO, static::$_logName, '');
+        if (static::$_logCate)
+            Log::json($log, $result === false ? Logger::LEVEL_ERROR : Logger::LEVEL_INFO, static::$_logCate, static::$_logFile);
         if ($result === false && $this->throwError && !empty($e)) throw $e;
         return $result;
     }

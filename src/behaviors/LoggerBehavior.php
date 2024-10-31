@@ -57,7 +57,7 @@ class LoggerBehavior extends Behavior
             'response' => mb_strlen($resData) > 500 ? mb_substr($resData, 0, 500) . '...' : $resData,
             'ip' => Utils::getRealIp() ?? $req->getUserIP() ?? '-',
         ], $this->prepareExtInfo());
-        Log::info($log, $this->logName, '_d_ymd');
+        Log::info($log, $this->logName, '{category}');
     }
 
     /**
