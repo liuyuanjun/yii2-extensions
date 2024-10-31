@@ -71,7 +71,7 @@ class Log
     public static function json(array $array, $level, string $category = 'common', $logFile = '')
     {
         // 兼容旧版本
-        if (str_starts_with($logFile, '_d_')) {
+        if ($logFile && str_starts_with($logFile, '_d_')) {
             $logFile = '{category}.{date:' . substr($logFile, 3) . '}';
         }
         $fullCategory = 'x_' . $category;
@@ -91,13 +91,13 @@ class Log
                     throw new InvalidArgumentException('logFile must be a string');
                 }
                 if (strpos($logFile, '{') !== false) {
-                    $params['logFile'] = str_replace('{category}', $category, $logFile);
+                    $logFile = str_replace('{category}', $category, $logFile);
                     // 替换 {date:format}
-                    $params['logFile'] = preg_replace_callback('/\{date:([^\}]+)\}/', function ($matches) {
+                    $logFile = preg_replace_callback('/\{date:([^\}]+)\}/', function ($matches) {
                         return date($matches[1]);
-                    }, $params['logFile']);
+                    }, $logFile);
                 }
-                $params['logFile'] = (defined('APP_LOG_DIR') ? APP_LOG_DIR : '@runtime/logs') . '/' . $params['logFile'] . '.log';
+                $params['logFile'] = (defined('APP_LOG_DIR') ? APP_LOG_DIR : '@runtime/logs') . '/' . $logFile . '.log';
             }
             $log->targets[$fullCategory] = Yii::createObject($params);
         }
