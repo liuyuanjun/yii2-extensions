@@ -21,6 +21,7 @@ if (!function_exists('env')) {
         static $loaded = false;
         if (!$loaded && defined('ROOT_PATH')) {
             Dotenv\Dotenv::createImmutable(ROOT_PATH)->load();
+            $_ENV = array_merge($_ENV, getenv());
             $loaded = true;
         }
         if (!isset($_ENV[$key])) {
