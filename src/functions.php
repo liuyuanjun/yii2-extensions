@@ -9,9 +9,6 @@ use Symfony\Component\VarDumper\VarDumper;
 use yii\db\Connection;
 use yii\helpers\ArrayHelper;
 
-if (defined('ROOT_PATH')) {
-    Dotenv\Dotenv::createImmutable(ROOT_PATH)->load();
-}
 if (!function_exists('env')) {
     /**
      * 获取环境变量
@@ -21,6 +18,11 @@ if (!function_exists('env')) {
      */
     function env(string $key, $default = null)
     {
+        static $loaded = false;
+        if (!$loaded && defined('ROOT_PATH')) {
+            Dotenv\Dotenv::createImmutable(ROOT_PATH)->load();
+            $loaded = true;
+        }
         if (!isset($_ENV[$key])) {
             if ($default instanceof Closure || (is_array($default) && is_callable($default))) {
                 return call_user_func($default);
