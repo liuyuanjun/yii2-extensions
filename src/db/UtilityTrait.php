@@ -1,5 +1,4 @@
 <?php
-
 namespace liuyuanjun\yii2\db;
 
 use Yii;
@@ -108,7 +107,7 @@ trait UtilityTrait
      * @date   2020/6/25 22:01
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function batchInsert(array $rows, array $columns = null, bool $ignore = false): int
+    public static function batchInsert(array $rows, $columns = null, bool $ignore = false): int
     {
         if (empty($columns)) $columns = reset($rows);
         $sql = static::getDb()->queryBuilder->batchInsert(static::tableName(), $columns, $rows);
@@ -127,7 +126,7 @@ trait UtilityTrait
      * @date   2021/7/20 15:08
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function batchInsertIgnore(array $rows, array $columns = null): int
+    public static function batchInsertIgnore(array $rows, $columns = null): int
     {
         return static::batchInsert($rows, $columns, true);
     }
@@ -194,7 +193,7 @@ trait UtilityTrait
         return false;
     }
 
-    public function getAttrDiff(array $names = null): array
+    public function getAttrDiff($names = null): array
     {
         $diff = [];
         if (!empty($dirtyAttributes = $this->getDirtyAttributes($names))) {

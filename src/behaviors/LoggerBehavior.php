@@ -31,6 +31,7 @@ class LoggerBehavior extends Behavior
 {
     public $logName = 'api';
     public $extInfo = [];
+    public $responseMaxLength = 500;
 
     public function events(): array
     {
@@ -48,13 +49,20 @@ class LoggerBehavior extends Behavior
         if (!$this->logName) return;
         $req = Yii::$app->request;
         $res = Yii::$app->response;
-        $resData = is_string($res->data) ? str_replace(["\r", "\n"], ' ', $res->data) : Json::encode($res->data);
+        if ($req->header->get('content-type') === 'application/xml') {
+            $resData = $res->content;
+        } else {
+            $resData = is_string($res->data) ? str_replace(["\r", "\n"], ' ', $res->data) : Json::encode($res->data);
+            if ($this->responseMaxLength > 0 && mb_strlen($resData) > $this->responseMaxLength) {
+                $resData = mb_substr($resData, 0, $this->responseMaxLength) . '...';
+            }
+        }
         $log = array_merge([
             'route' => Yii::$app->requestedRoute,
             'get' => $req->get(),
-            'post' => $req->post(),
+            'rawBody' => $req->getRawBody(),
             'header' => $req->headers->toArray(),
-            'response' => mb_strlen($resData) > 500 ? mb_substr($resData, 0, 500) . '...' : $resData,
+            'response' => $resData,
             'ip' => Utils::getRealIp() ?? $req->getUserIP() ?? '-',
         ], $this->prepareExtInfo());
         Log::info($log, $this->logName, '{category}');

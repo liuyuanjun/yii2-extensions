@@ -26,15 +26,15 @@ trait CamelizeTrait
 
     /**
      * 获取驼峰化属性名
-     * @param $names
-     * @param $except
+     * @param array $names
+     * @param array $except
      * @return array
      * @author Yuanjun.Liu <6879391@qq.com>
      * @time 2023/12/22 16:36
      */
-    public function camelCaseAttributes($names = null, $except = []): array
+    public function camelCaseAttributes($names = [], $except = []): array
     {
-        if ($names === null) {
+        if (empty($names)) {
             $names = $this->attributes();
         }
         $camelCaseNames = array_flip($names);
@@ -50,16 +50,16 @@ trait CamelizeTrait
 
     /**
      * 获取驼峰化属性
-     * @param null  $names
+     * @param array $names
      * @param array $except
      * @return array
      * @date   2021/10/25 15:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public function getCamelizeAttributes($names = null, $except = [])
+    public function getCamelizeAttributes($names = [], $except = [])
     {
         $values = [];
-        if ($names === null) {
+        if (empty($names)) {
             $names = $this->attributes();
         }
         $flipNames = array_flip($names);
