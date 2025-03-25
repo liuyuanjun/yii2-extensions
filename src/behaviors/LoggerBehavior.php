@@ -49,7 +49,7 @@ class LoggerBehavior extends Behavior
         if (!$this->logName) return;
         $req = Yii::$app->request;
         $res = Yii::$app->response;
-        if ($req->header->get('content-type') === 'application/xml') {
+        if ($req->headers->get('content-type') === 'application/xml') {
             $resData = $res->content;
         } else {
             $resData = is_string($res->data) ? str_replace(["\r", "\n"], ' ', $res->data) : Json::encode($res->data);
