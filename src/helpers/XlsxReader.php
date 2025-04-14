@@ -41,13 +41,14 @@ use Yii;
 class XlsxReader
 {
     /**  @var string file path */
-    protected $_xlsxFilePath;
+    protected $_filePath;
+    protected $_fileExt;
     /** @var null|UploadedFile */
     protected $_uploadedFile;
     protected $_spreadsheet;
     protected $_tmpPath;
     protected $_sheetIndex = 0;
-    public $ignoreValue = ['-'];
+    public    $ignoreValue = ['-'];
 
     /**
      * XlsxReader constructor.
@@ -55,7 +56,7 @@ class XlsxReader
      * @param string|null $filePath
      * @throws Exception
      */
-    public function __construct(string $filePath = null)
+    public function __construct($filePath = null)
     {
         set_time_limit(0);
         $filePath && $this->setXlsxFile($filePath);
@@ -65,7 +66,8 @@ class XlsxReader
     /**
      * 读取
      * @param array $colParseRule
-     * @param int $startRowNo
+     * @param int   $startRowNo
+     * @param int   $endRowNo
      * @return array
      * @throws Exception
      * @throws \PhpOffice\PhpSpreadsheet\Exception
@@ -73,11 +75,11 @@ class XlsxReader
      * @date   2021/6/8 18:13
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public function readByRule(array $colParseRule, int $startRowNo = 1): array
+    public function readByRule(array $colParseRule, int $startRowNo = 1, int $endRowNo = -1): array
     {
-        $data = [];
+        $data  = [];
         $sheet = $this->getSheet();
-        $total = $sheet->getHighestRow();
+        $total = $endRowNo > 0 ? $endRowNo : $sheet->getHighestRow();
         if ($total < 1) throw new Exception('没有记录可导出');
         for ($row = $startRowNo; $row <= $total; $row++) { //读取内容
             $array = [];
@@ -109,6 +111,101 @@ class XlsxReader
     }
 
     /**
+     * 读取
+     * 数据规则Map的 key 为列的编号，value 为规则，
+     * 规则（rule） 是一个 Map
+     * rule.data 为数据类型，根据不同类型读取方法不一样  value link  calculated  formatted  date 或可调用函数，不指定则默认读取Cell值
+     * rule.key 为行数据的列key，如果没有 rule.key 则以 rule.titleRow 为 key，如果没有 rule.titleRow 则以列号（A、B、C）为 key
+     * rule.primary 为主字段，如果指定了，则读取到主字段为空结束，否则读取到最后一行，主字段必须为直读的值，为空则停止读取
+     * @param array $dataRules      数据规则 ['1' => ['data' => 'link', 'key' => 'id', 'titleRow' => 3, 'primary' => true, 'ignore' => false, 'isLast' => false]]
+     * @param int   $dataStartRowNo 数据起始行
+     * @return array
+     * @date   2025/4/13 18:13
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function read($dataRules = [], $dataStartRowNo = 2, $defaultTitleRowNo = -1): array
+    {
+        $data       = [];
+        $sheet      = $this->getSheet();
+        $highestRow = $sheet->getHighestRow();
+        $highestCol = Coordinate::columnIndexFromString($sheet->getHighestColumn());
+        if ($highestRow < 1) return $data;
+        $titles      = [];
+        $primaryCol  = null;
+        $parsedRules = [];
+        for ($col = 1; $col <= $highestCol; $col++) {
+            $colLetter = Coordinate::stringFromColumnIndex($col);
+            $colRule   = $dataRules[$colLetter] ?? $dataRules[$col . ''] ?? $dataRules[$col] ?? null;
+            if (!empty($colRule['ignore'])) continue;
+            $rule = ['letter' => $colLetter, 'col' => $col];
+            if (!empty($colRule['key'])) {
+                $rule['key'] = $colRule['key'];
+            } elseif (!empty($colRule['titleRow'])) {
+                $rule['key'] = $this->getCellValue($col, $colRule['titleRow']);
+            } elseif ($defaultTitleRowNo > 0) {
+                $rule['key'] = $this->getCellValue($col, $defaultTitleRowNo);
+            } else {
+                $rule['key'] = Coordinate::stringFromColumnIndex($col);
+            }
+            $rule['data']      = $colRule['data'] ?? 'value';
+            $parsedRules[$col] = $rule;
+            if (!empty($colRule['primary'])) {
+                $primaryCol = $col;
+            }
+            if (!empty($colRule['isLast'])) {
+                break;
+            }
+        }
+        for ($row = $dataStartRowNo; $row <= $highestRow; $row++) {
+            $rowData = [];
+            foreach ($parsedRules as $col => $rule) {
+                if ($primaryCol == $col && $this->getCellValue($col, $row) == '') {
+                    break 2;
+                }
+                $rowData[$rule['key']] = $this->getCellValueByRule($col, $row, $rule['data'] ?? null);
+            }
+            $data[] = $rowData;
+        }
+        return $data;
+    }
+
+    /**
+     * 按规则读取 Cell 值
+     * @param $col
+     * @param $row
+     * @param $dataRule
+     * @return false|float|int|mixed|string
+     * @throws \PhpOffice\PhpSpreadsheet\Calculation\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
+     */
+    private function getCellValueByRule($col, $row, $dataRule = null)
+    {
+        $dataRule = $dataRule ?? 'value';
+        if ($dataRule === 'value') {
+            return $this->getCellValue($col, $row);
+        } elseif ($dataRule === 'link') {
+            return $this->getCellLink($col, $row);
+        } elseif ($dataRule === 'calculated') {
+            return $this->getCell($col, $row)->getCalculatedValue();
+        } elseif ($dataRule === 'formatted') {
+            return $this->getCell($col, $row)->getFormattedValue();
+        } elseif ($dataRule === 'date') {
+            $cellVal = $this->getCellValue($col, $row);
+            if ($cellVal) {
+                $toTimestamp = Date::excelToTimestamp($cellVal);
+                return date("Y-m-d", $toTimestamp);
+            } else {
+                return $cellVal;
+            }
+        } elseif ($dataRule && is_callable($dataRule)) {
+            return call_user_func($dataRule, $this, $col, $row);
+        } else {
+            return $this->getCellValue($col, $row);
+        }
+    }
+
+    /**
      * @param int $startRowNo
      * @return array
      * @throws Exception
@@ -119,7 +216,7 @@ class XlsxReader
      */
     public function readAll(int $startRowNo = 1): array
     {
-        $sheet = $this->getSheet();
+        $sheet      = $this->getSheet();
         $highestRow = $sheet->getHighestRow();
         $highestCol = Coordinate::columnIndexFromString($sheet->getHighestColumn());
         if ($highestRow < 1) throw new Exception('没有记录可导出');
@@ -145,7 +242,7 @@ class XlsxReader
     public function readRow(int $row): array
     {
         $highestCol = Coordinate::columnIndexFromString($this->getSheet()->getHighestColumn());
-        $data = [];
+        $data       = [];
         for ($col = 1; $col <= $highestCol; $col++) {
             $data[$col] = $this->getCellValue($col, $row);
         }
@@ -227,21 +324,44 @@ class XlsxReader
     /**
      * 设置文件
      * @param string $filePath
-     * @param bool $checkExt
+     * @param bool   $checkExt
      * @return XlsxReader
      * @throws Exception
-     * @author Yuanjun.Liu <6879391@qq.com>
+     * @author     Yuanjun.Liu <6879391@qq.com>
+     * @deprecated 改为使用 setFile() 方法
      */
     public function setXlsxFile(string $filePath, bool $checkExt = true): XlsxReader
     {
         if (!is_file($filePath)) {
             throw new Exception('文件不存在 ' . $filePath);
         }
-        if ($checkExt && strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) !== 'xlsx') {
-            throw new Exception('文件类型不符，只接受 xlsx 格式');
+        $this->_fileExt = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        if ($checkExt && !in_array($this->_fileExt, ['xlsx', 'xls'], true)) {
+            throw new Exception('文件类型不符，只接受 xlsx, xls 格式');
         }
         $this->reset();
-        $this->_xlsxFilePath = $filePath;
+        $this->_filePath = $filePath;
+        return $this;
+    }
+
+    /**
+     * 设置文件
+     * @param string $filePath
+     * @return $this
+     * @throws Exception
+     * @author Yuanjun.Liu <6879391@qq.com>
+     */
+    public function setFile(string $filePath): XlsxReader
+    {
+        if (!is_file($filePath)) {
+            throw new Exception('文件不存在 ' . $filePath);
+        }
+        $this->_fileExt = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        if (!in_array($this->_fileExt, ['xlsx', 'xls'], true)) {
+            throw new Exception('文件类型不符，只接受 xlsx, xls 格式');
+        }
+        $this->reset();
+        $this->_filePath = $filePath;
         return $this;
     }
 
@@ -264,7 +384,7 @@ class XlsxReader
             throw new Exception('保存文件失败');
         }
         $this->reset();
-        $this->_xlsxFilePath = $filePath;
+        $this->_filePath = $filePath;
         return $this;
     }
 
@@ -274,10 +394,10 @@ class XlsxReader
      */
     protected function reset()
     {
-        $this->_xlsxFilePath = null;
+        $this->_filePath    = null;
         $this->_spreadsheet = null;
-        $this->_tmpPath = null;
-        $this->_sheetIndex = 0;
+        $this->_tmpPath     = null;
+        $this->_sheetIndex  = 0;
     }
 
     /**
@@ -312,10 +432,10 @@ class XlsxReader
     {
         if (!$this->_spreadsheet) {
             if ($this->_reader === null) {
-                $this->_reader = IOFactory::createReader('Xlsx');
+                $this->_reader = IOFactory::createReader($this->_fileExt === 'xlsx' ? IOFactory::READER_XLSX : IOFactory::READER_XLS);
 //                $this->_reader->setReadDataOnly(TRUE); //hyperlinks are not loaded when setReadDataOnly(true)
             }
-            $this->_spreadsheet = $this->_reader->load($this->_xlsxFilePath);
+            $this->_spreadsheet = $this->_reader->load($this->_filePath);
         }
         return $this->_spreadsheet;
     }
