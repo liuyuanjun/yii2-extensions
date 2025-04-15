@@ -130,7 +130,6 @@ class XlsxReader
         $highestRow = $sheet->getHighestRow();
         $highestCol = Coordinate::columnIndexFromString($sheet->getHighestColumn());
         if ($highestRow < 1) return $data;
-        $titles      = [];
         $primaryCol  = null;
         $parsedRules = [];
         for ($col = 1; $col <= $highestCol; $col++) {
@@ -157,7 +156,7 @@ class XlsxReader
             }
         }
         for ($row = $dataStartRowNo; $row <= $highestRow; $row++) {
-            $rowData = [];
+            $rowData = ['_rowNo' => $row];
             foreach ($parsedRules as $col => $rule) {
                 if ($primaryCol == $col && $this->getCellValue($col, $row) == '') {
                     break 2;
