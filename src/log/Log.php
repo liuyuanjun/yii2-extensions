@@ -27,7 +27,7 @@ class Log
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function error(array $array, string $category = 'common', $logFile = '')
+    public static function error(array $array, string $category = 'common', $logFile = 'custom')
     {
         static::json($array, Logger::LEVEL_ERROR, $category, $logFile);
     }
@@ -40,7 +40,7 @@ class Log
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function warning(array $array, string $category = 'common', $logFile = '')
+    public static function warning(array $array, string $category = 'common', $logFile = 'custom')
     {
         static::json($array, Logger::LEVEL_WARNING, $category, $logFile);
     }
@@ -53,7 +53,7 @@ class Log
      * @date 2021/9/1 11:40
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function info(array $array, string $category = 'common', $logFile = '')
+    public static function info(array $array, string $category = 'common', $logFile = 'custom')
     {
         static::json($array, Logger::LEVEL_INFO, $category, $logFile);
     }
@@ -68,7 +68,7 @@ class Log
      * @throws InvalidConfigException
      * @author Yuanjun.Liu <6879391@qq.com>
      */
-    public static function json(array $array, $level, string $category = 'common', $logFile = '')
+    public static function json(array $array, $level, string $category = 'common', $logFile = 'custom')
     {
         // 兼容旧版本
         if ($logFile && str_starts_with($logFile, '_d_')) {
