@@ -19,6 +19,12 @@ use yii\web\Request;
 class JsonFileTarget extends FileTarget
 {
     public $logVars = [];
+    /**
+    * @var int how many messages should be accumulated before they are exported.
+    * Defaults to 1000. Note that messages will always be exported when the application terminates.
+    * Set this property to be 0 if you don't want to export messages until the application terminates.
+    */
+    public $exportInterval = 100;
 
     /**
      * {@inheritdoc}
