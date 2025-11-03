@@ -20,8 +20,13 @@ if (!function_exists('env')) {
     {
         static $loaded = false;
         if (!$loaded && defined('ROOT_PATH')) {
-            Dotenv\Dotenv::createImmutable(ROOT_PATH)->load();
+            Dotenv\Dotenv::createMutable(ROOT_PATH)->load();
             $_ENV = array_merge($_ENV, getenv());
+            $e = $_ENV['YII_ENV'] ?? $_ENV['APP_ENV'] ?? null;
+            if ($e && file_exists(ROOT_PATH . '/.env.' . $e)) {
+                Dotenv\Dotenv::createMutable(ROOT_PATH, '.env.' . $e)->load();
+                $_ENV = array_merge($_ENV, getenv());
+            }
             $loaded = true;
         }
         if (!isset($_ENV[$key])) {
