@@ -20,14 +20,16 @@ if (!function_exists('env')) {
     {
         static $loaded = false;
         if (!$loaded && defined('ROOT_PATH')) {
-            $__env = getenv('YII_ENV') ?: getenv('APP_ENV') ?: null;
-            if(file_exists(ROOT_PATH . '/.env.' . $__env)) {
-                Dotenv\Dotenv::createImmutable(ROOT_PATH, ['.env.' . $__env])->load();
+            if (file_exists(ROOT_PATH . '/.env_flag')) {
+                $__env = trim(file_get_contents(ROOT_PATH . '/.env_flag'));
+                if (file_exists(ROOT_PATH . '/.env.' . $__env)) {
+                    Dotenv\Dotenv::createImmutable(ROOT_PATH, ['.env.' . $__env])->load();
+                }
             }
             if (file_exists(ROOT_PATH . '/.env')) {
                 Dotenv\Dotenv::createImmutable(ROOT_PATH, ['.env'])->load();
             }
-            $_ENV = array_merge($_ENV, getenv());
+            $_ENV   = array_merge($_ENV, getenv());
             $loaded = true;
         }
         if (!isset($_ENV[$key])) {
