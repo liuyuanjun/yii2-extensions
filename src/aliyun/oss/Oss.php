@@ -22,6 +22,7 @@ class Oss extends Component
     public $endpoint;
     public $bucket;
     public $cdnUrlPrefix;
+    public $domain;
     public $dir = '';//目录
     protected $_ossClients = [];
     protected $_internal = false;
@@ -229,7 +230,12 @@ class Oss extends Component
      */
     public function signUrl($object, $timeout = 60, $method = OssClient::OSS_HTTP_GET, $options = NULL)
     {
-        return $this->getClient()->signUrl($this->bucket, $this->jointDir($object), $timeout, $method, $options);
+        $url = $this->getClient()->signUrl($this->bucket, $this->jointDir($object), $timeout, $method, $options);
+        if ($this->domain) {
+            $parsed = parse_url($url);
+            $url = rtrim($this->domain, '/') . $parsed['path'] . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
+        }
+        return $url;
     }
 
 }
